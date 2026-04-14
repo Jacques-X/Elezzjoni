@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { GlobalSearch } from '@/components/global-search'
+import { s } from '@/lib/strings'
 
 const navLinks = [
-  { href: '/districts', label: 'Districts' },
-  { href: '/parties', label: 'Parties' },
-  { href: '/candidates', label: 'Candidates' },
+  { href: '/districts', label: s.nav.districts },
+  { href: '/parties',   label: s.nav.parties },
+  { href: '/candidates',label: s.nav.candidates },
 ]
 
 export function Navbar() {
@@ -18,7 +19,6 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-white/90 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className="text-xl font-bold tracking-tight">
               elezzjoni
@@ -27,7 +27,6 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
@@ -45,13 +44,11 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Search */}
           <div className="flex-1 max-w-xs">
             <GlobalSearch />
           </div>
         </div>
 
-        {/* Mobile nav */}
         <div className="flex md:hidden gap-1 pb-2 overflow-x-auto">
           {navLinks.map((link) => (
             <Link

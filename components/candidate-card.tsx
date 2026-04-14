@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { s } from '@/lib/strings'
 import type { CandidateWithParty } from '@/lib/types'
 
 interface CandidateCardProps {
@@ -12,14 +13,12 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
   return (
     <Link href={`/candidates/${candidate.id}`} className="block group">
       <Card className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 border-border/60 p-0">
-        {/* Party colour accent bar */}
         <div
           className="h-1 w-full"
           style={{ backgroundColor: candidate.party?.color_hex ?? '#E5E7EB' }}
         />
 
         <div className="p-4 flex gap-4 items-start">
-          {/* Photo */}
           <div className="shrink-0">
             {candidate.photo_url ? (
               <Image
@@ -36,7 +35,6 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
             )}
           </div>
 
-          {/* Info */}
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-sm leading-tight group-hover:text-primary transition-colors truncate">
               {candidate.full_name}
@@ -54,7 +52,7 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
               )}
               {candidate.incumbent && (
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  Incumbent
+                  {s.candidateProfile.incumbent}
                 </Badge>
               )}
             </div>

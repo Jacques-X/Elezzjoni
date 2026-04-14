@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { Badge } from '@/components/ui/badge'
+import { s } from '@/lib/strings'
 import type { Party } from '@/lib/types'
 
 interface DistrictFilterProps {
@@ -15,22 +15,19 @@ export function DistrictFilter({ parties, currentParty, districtId }: DistrictFi
   const pathname = usePathname()
 
   const setFilter = (partyId: string | null) => {
-    const url = partyId
-      ? `${pathname}?party=${partyId}`
-      : pathname
-    router.push(url)
+    router.push(partyId ? `${pathname}?party=${partyId}` : pathname)
   }
 
   return (
     <div className="flex flex-wrap gap-2 items-center">
-      <span className="text-sm text-muted-foreground mr-1">Filter:</span>
+      <span className="text-sm text-muted-foreground mr-1">{s.filters.label}</span>
 
       <button
         onClick={() => setFilter(null)}
         className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors border border-border/60 hover:bg-muted/50 data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-transparent"
         data-active={!currentParty}
       >
-        All
+        {s.filters.all}
       </button>
 
       {parties.map((party) => (

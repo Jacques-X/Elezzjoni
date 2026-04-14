@@ -4,6 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { s } from '@/lib/strings'
 import { MapPin, Users, Building2, ArrowRight } from 'lucide-react'
 
 export default async function HomePage() {
@@ -30,19 +31,16 @@ export default async function HomePage() {
               <span className="h-2 w-8 rounded-full bg-[#003DA5]" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-              Know your candidates.<br />
-              <span className="text-muted-foreground font-normal">Vote with confidence.</span>
+              {s.home.heroHeading}<br />
+              <span className="text-muted-foreground font-normal">{s.home.heroSubheading}</span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-xl">
-              A politically neutral portal to find, research, and compare candidates
-              running in all 13 Maltese electoral districts.
-            </p>
+            <p className="mt-5 text-lg text-muted-foreground max-w-xl">{s.home.heroDescription}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/districts" className={cn(buttonVariants({ size: 'lg' }))}>
-                Browse by District <ArrowRight className="ml-2 h-4 w-4" />
+                {s.home.ctaBrowse} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link href="/candidates" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
-                All Candidates
+                {s.home.ctaAll}
               </Link>
             </div>
           </div>
@@ -53,39 +51,20 @@ export default async function HomePage() {
       <section className="border-b border-border/50 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <StatCard icon={<MapPin className="h-5 w-5" />} value="13" label="Electoral Districts" />
-            <StatCard icon={<Users className="h-5 w-5" />} value={candidateCount?.toString() ?? '—'} label="Candidates" />
-            <StatCard icon={<Building2 className="h-5 w-5" />} value={parties?.length?.toString() ?? '—'} label="Parties" />
-            <StatCard icon={<MapPin className="h-5 w-5" />} value="1" label="Gozo Constituency" />
+            <StatCard icon={<MapPin className="h-5 w-5" />}    value="13"                                    label={s.home.statDistricts}  />
+            <StatCard icon={<Users className="h-5 w-5" />}    value={candidateCount?.toString() ?? '—'}       label={s.home.statCandidates} />
+            <StatCard icon={<Building2 className="h-5 w-5" />} value={parties?.length?.toString() ?? '—'}     label={s.home.statParties}    />
           </div>
         </div>
       </section>
 
       {/* Quick navigation */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-2xl font-bold mb-8">Quick Access</h2>
+        <h2 className="text-2xl font-bold mb-8">{s.home.quickAccessTitle}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <NavCard
-            href="/districts"
-            title="Find by District"
-            description="Browse all 13 electoral districts and see every candidate on the ballot in your area."
-            accent="#CF0A2C"
-            icon={<MapPin className="h-6 w-6" />}
-          />
-          <NavCard
-            href="/parties"
-            title="Explore Parties"
-            description="See party profiles, their full candidate rosters, and filter by affiliation."
-            accent="#003DA5"
-            icon={<Building2 className="h-6 w-6" />}
-          />
-          <NavCard
-            href="/candidates"
-            title="All Candidates"
-            description="Search and filter the complete directory of candidates across all districts."
-            accent="#6B7280"
-            icon={<Users className="h-6 w-6" />}
-          />
+          <NavCard href="/districts" title={s.home.card1Title} description={s.home.card1Desc} accent="#CF0A2C" icon={<MapPin className="h-6 w-6" />} />
+          <NavCard href="/parties"   title={s.home.card2Title} description={s.home.card2Desc} accent="#003DA5" icon={<Building2 className="h-6 w-6" />} />
+          <NavCard href="/candidates"title={s.home.card3Title} description={s.home.card3Desc} accent="#6B7280" icon={<Users className="h-6 w-6" />} />
         </div>
       </section>
 
@@ -93,7 +72,7 @@ export default async function HomePage() {
       {parties && parties.length > 0 && (
         <section className="border-t border-border/50 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-            <h2 className="text-2xl font-bold mb-8">Parties on the Ballot</h2>
+            <h2 className="text-2xl font-bold mb-8">{s.home.partiesTitle}</h2>
             <div className="flex flex-wrap gap-3">
               {parties.map((party) => (
                 <Link key={party.id} href={`/parties/${party.id}`}>
@@ -124,31 +103,18 @@ function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string
   )
 }
 
-function NavCard({
-  href,
-  title,
-  description,
-  accent,
-  icon,
-}: {
-  href: string
-  title: string
-  description: string
-  accent: string
-  icon: React.ReactNode
+function NavCard({ href, title, description, accent, icon }: {
+  href: string; title: string; description: string; accent: string; icon: React.ReactNode
 }) {
   return (
     <Link href={href} className="group block">
       <Card className="h-full p-6 border-border/60 hover:shadow-md transition-all hover:-translate-y-0.5 overflow-hidden relative">
-        <div
-          className="absolute top-0 left-0 right-0 h-1"
-          style={{ backgroundColor: accent }}
-        />
+        <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accent }} />
         <div className="mb-3" style={{ color: accent }}>{icon}</div>
         <h3 className="font-semibold text-base mb-2 group-hover:text-primary transition-colors">{title}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
         <div className="mt-4 flex items-center text-sm font-medium" style={{ color: accent }}>
-          Explore <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+          {s.home.cardCta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </div>
       </Card>
     </Link>

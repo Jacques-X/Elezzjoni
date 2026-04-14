@@ -61,11 +61,26 @@ async def scrape_candidates() -> list[ScrapedCandidate]:
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
-        page = await browser.new_page()
+        context = await browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            locale="mt-MT",
+            viewport={"width": 1280, "height": 800},
+        )
+        page = await context.new_page()
 
         print("Loading electoral.gov.mt candidate list…")
         await page.goto(f"{ELECTORAL_BASE}/ElectionResults/Candidates", wait_until="networkidle")
+
+        # Dump the HTML so you can inspect selectors if needed
         html = await page.content()
+        with open("debug_candidates.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        print("  HTML saved to debug_candidates.html for selector inspection.")
+
         soup = BeautifulSoup(html, "html.parser")
 
         # Adjust selector to match actual site structure

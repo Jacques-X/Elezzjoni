@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import type { Candidate, Party } from '@/lib/types'
+import { s } from '@/lib/strings'
+import type { Party } from '@/lib/types'
 
 interface SearchResult {
   id: string
@@ -47,7 +48,6 @@ export function GlobalSearch() {
         .ilike('full_name', `%${query}%`)
         .limit(8)
 
-      // Supabase returns the joined relation as an array; normalise to single object
       const normalised: SearchResult[] = (data ?? []).map((row: any) => ({
         ...row,
         party: Array.isArray(row.party) ? row.party[0] ?? null : row.party,
@@ -73,7 +73,7 @@ export function GlobalSearch() {
         <input
           ref={inputRef}
           type="search"
-          placeholder="Search candidates…"
+          placeholder={s.search.placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
@@ -84,9 +84,9 @@ export function GlobalSearch() {
       {open && (
         <div className="absolute top-full mt-1 w-full rounded-md border border-border bg-white shadow-lg z-50 overflow-hidden">
           {loading ? (
-            <div className="p-3 text-sm text-muted-foreground">Searching…</div>
+            <div className="p-3 text-sm text-muted-foreground">{s.search.searching}</div>
           ) : results.length === 0 ? (
-            <div className="p-3 text-sm text-muted-foreground">No candidates found.</div>
+            <div className="p-3 text-sm text-muted-foreground">{s.search.noResults}</div>
           ) : (
             <ul>
               {results.map((r) => (

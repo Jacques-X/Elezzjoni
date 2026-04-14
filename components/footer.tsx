@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { s } from '@/lib/strings'
 
 export function Footer() {
   return (
@@ -10,34 +11,33 @@ export function Footer() {
               elezzjoni<span className="text-[#CF0A2C]">.</span>
               <span className="text-[#003DA5]">mt</span>
             </span>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Politically neutral civic tech for Maltese voters.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{s.site.tagline}</p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold mb-3">Explore</h3>
+            <h3 className="text-sm font-semibold mb-3">{s.footer.explore}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/districts" className="hover:text-foreground transition-colors">Districts</Link></li>
-              <li><Link href="/parties" className="hover:text-foreground transition-colors">Parties</Link></li>
-              <li><Link href="/candidates" className="hover:text-foreground transition-colors">Candidates</Link></li>
+              <li><Link href="/districts" className="hover:text-foreground transition-colors">{s.nav.districts}</Link></li>
+              <li><Link href="/parties"   className="hover:text-foreground transition-colors">{s.nav.parties}</Link></li>
+              <li><Link href="/candidates"className="hover:text-foreground transition-colors">{s.nav.candidates}</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold mb-3">About</h3>
+            <h3 className="text-sm font-semibold mb-3">{s.footer.about}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="https://electoral.gov.mt" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Electoral Commission</a></li>
+              <li>
+                <a href="https://electoral.gov.mt" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                  {s.footer.electoralCommission}
+                </a>
+              </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold mb-3">Data</h3>
-            <p className="text-sm text-muted-foreground">
-              Data is sourced from official electoral records and party publications.
-              AI-generated summaries are clearly labelled.
-            </p>
+            <h3 className="text-sm font-semibold mb-3">{s.footer.data}</h3>
+            <p className="text-sm text-muted-foreground">{s.footer.dataNote}</p>
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-border/50 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Elezzjoni.mt · Open source civic technology · Not affiliated with any political party</p>
+          <p>{s.site.copyright(new Date().getFullYear())}</p>
         </div>
       </div>
     </footer>
