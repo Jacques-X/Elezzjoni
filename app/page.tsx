@@ -45,7 +45,9 @@ export default async function HomePage() {
               <span className="h-2 w-12 rounded-full bg-[#CF0A2C]" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-white">
-              {s.home.heroHeading}<br />
+              {s.home.heroHeading}
+              <span className="whitespace-nowrap font-serif">&nbsp;{s.home.heroHeadingAccent}</span>
+              <br />
               <span className="text-white/50 font-normal">{s.home.heroSubheading}</span>
             </h1>
             <p className="mt-5 text-lg text-white/60 max-w-xl">{s.home.heroDescription}</p>

@@ -41,8 +41,9 @@ export const s = {
 
   // ── Home page ────────────────────────────────────────────
   home: {
-    heroHeading:    'Tgħarraf dwar il-kandidati tiegħek.',
-    heroSubheading: "Ivvota b'kunfidenza.",
+    heroHeading:       'Tgħarraf dwar il-kandidati',
+    heroHeadingAccent: 'tiegħek.',
+    heroSubheading:    "Ivvota b'kunfidenza.",
     heroDescription:
       "Paġna newtrali sabiex issir taf aħjar il-partiti u l-kandidati fit-13-il distrett elettorali Malti.",
     ctaBrowse:      'Fittex bid-Distrett',
