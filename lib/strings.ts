@@ -24,6 +24,9 @@ export const s = {
     districts:  'Distretti',
     parties:    'Partiti',
     candidates: 'Kandidati',
+    ballot:     'Ballotta Tiegħi',
+    stv:        'Kif taħdem is-STV',
+    compare:    'Qabbel',
   },
 
   // ── Footer ──────────────────────────────────────────────
@@ -125,12 +128,82 @@ export const s = {
 
   // ── Filters ──────────────────────────────────────────────
   filters: {
-    label:       'Filtru:',
-    all:         'Kollha',
-    allParties:  'Il-partiti kollha',
-    allDistricts:'Id-distretti kollha',
-    searchName:  'Fittex bl-isem…',
-    districtOpt: (id: number, name: string) => `Distrett ${id} — ${name}`,
+    label:        'Filtru:',
+    all:          'Kollha',
+    allParties:   'Il-partiti kollha',
+    allDistricts: 'Id-distretti kollha',
+    searchName:   'Fittex bl-isem…',
+    districtOpt:  (id: number, name: string) => `Distrett ${id} — ${name}`,
+    allTags:      'Suġġetti kollha',
+    tagsLabel:    'Suġġetti:',
+  },
+
+  // ── Ballot (My Ballot) ───────────────────────────────────
+  ballot: {
+    heading:     'Il-Ballotta Tiegħi',
+    subheading:  'Arranġa l-kandidati magħżulin skont il-preferenza tiegħek.',
+    empty:       "Ma ġiex magħżel l-ebda kandidat s'issa.",
+    browseCta:   'Esplora l-kandidati',
+    clear:       'Ħassar kollox',
+    privacyNote: 'Il-ballotta tinħażen biss fuq il-browser tiegħek. L-ebda dejta ma tiġi mibgħuta.',
+    addTip:      'Agħfas il-⭐ fuq kwalunkwe kandidat biex żżidu hawn.',
+    moveUp:      "Mur 'il fuq",
+    moveDown:    "Mur 'l isfel",
+    remove:      'Neħħi',
+  },
+
+  // ── Compare ──────────────────────────────────────────────
+  compare: {
+    heading:   'Qabbel il-Kandidati',
+    metaTitle: 'Qabbel — Elezzjoni.mt',
+    vs:        'vs',
+    party:     'Partit',
+    districts: 'Distretti',
+    incumbent: 'Deputat Attwali',
+    yes:       'Iva',
+    no:        'Le',
+    stances:   'Pożizzjonijiet Ewlenin',
+    noStances: "L-ebda pożizzjoni rrekordjata.",
+    pickBtn:   'Qabbel',
+    clearPick: 'Ikkanċella',
+    selectMsg: (name: string) => `"${name}" magħżul — agħżel kandidat ieħor biex tqabbel`,
+  },
+
+  // ── STV Explainer ────────────────────────────────────────
+  stv: {
+    metaTitle:  'Kif taħdem is-STV — Elezzjoni.mt',
+    heading:    'Kif taħdem is-STV?',
+    subheading: "Is-Single Transferable Vote hija s-sistema elettorali użata f'Malta mill-1921. Tippermetti li l-vot tiegħek jittrasferi biex ma jintilifx.",
+    next:       'Avvanza →',
+    prev:       '← Lura',
+    step:       (n: number, total: number) => `Pass ${n} minn ${total}`,
+    quota:      (n: number) => `Kwota: ${n}`,
+    tryBallot:  'Ipprova l-Ballotta Tiegħi',
+  },
+
+  // ── Postcode Lookup ──────────────────────────────────────
+  postcode: {
+    heading:     'Sib id-Distrett Tiegħek',
+    placeholder: 'eż. SLM 1234',
+    button:      'Sib',
+    notFound:    'Kodiċi postali mhux magħruf.',
+    found:       (d: number) => `Distrett ${d}`,
+  },
+
+  // ── Map ──────────────────────────────────────────────────
+  map: {
+    ariaLabel:   "Mappa interattiva tad-distretti elettorali ta' Malta",
+    tapDistrict: 'Agħfas distrett biex tara l-kandidati',
+  },
+
+  // ── Ballot Preview ───────────────────────────────────────
+  ballotPreview: {
+    triggerBtn:  'Ara l-Format tal-Ballotta',
+    heading:     'Ballotta Elettorali',
+    instruction: 'Agħti l-ewwel preferenza tiegħek billi tikteb in-numru 1 fil-kaxxa tal-kandidat tiegħek. Kompli bin-numri 2, 3, eċċ.',
+    official:    'Użu Uffiċjali Biss',
+    note:        'Dan huwa eżempju tal-format tal-ballotta reali.',
+    close:       'Agħlaq',
   },
 
 } as const

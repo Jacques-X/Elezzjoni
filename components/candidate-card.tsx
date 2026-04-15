@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { BallotStar } from '@/components/ballot-star'
+import { CompareButton } from '@/components/compare-button'
 import { s } from '@/lib/strings'
 import type { CandidateWithParty } from '@/lib/types'
 
@@ -18,7 +20,7 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
           style={{ backgroundColor: candidate.party?.color_hex ?? '#E5E7EB' }}
         />
 
-        <div className="p-4 flex gap-4 items-start">
+        <div className="p-4 flex gap-3 items-start">
           <div className="shrink-0">
             {candidate.photo_url ? (
               <Image
@@ -62,6 +64,12 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
                 {candidate.personal_stances[0]}
               </p>
             )}
+          </div>
+
+          {/* Action buttons — stop link propagation */}
+          <div className="flex flex-col gap-0.5 shrink-0 -mt-0.5">
+            <BallotStar candidateId={candidate.id} />
+            <CompareButton candidateId={candidate.id} candidateName={candidate.full_name} />
           </div>
         </div>
       </Card>

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import { CandidateCard } from '@/components/candidate-card'
 import { DistrictFilter } from '@/components/district-filter'
+import { BallotPreview } from '@/components/ballot-preview'
 import { MapPin } from 'lucide-react'
 import { s } from '@/lib/strings'
 import type { CandidateWithParty } from '@/lib/types'
@@ -44,6 +45,16 @@ export default async function DistrictPage({ params, searchParams }: PageProps) 
 
   const { data: candidates } = await query
 
+  // Build ballot preview data from candidate list
+  const ballotCandidates = (candidates ?? []).map(c => {
+    const party = Array.isArray(c.party) ? c.party[0] : c.party
+    return {
+      name:       c.full_name,
+      party:      party?.name ?? '',
+      partyColor: party?.color_hex ?? '#6B7280',
+    }
+  })
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -71,9 +82,17 @@ export default async function DistrictPage({ params, searchParams }: PageProps) 
           )}
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="text-3xl font-bold">{candidates?.length ?? 0}</div>
-          <div className="text-sm text-muted-foreground">{s.districts.candidates}</div>
+        <div className="flex items-end gap-4 shrink-0">
+          <div className="text-right">
+            <div className="text-3xl font-bold">{candidates?.length ?? 0}</div>
+            <div className="text-sm text-muted-foreground">{s.districts.candidates}</div>
+          </div>
+          {ballotCandidates.length > 0 && (
+            <BallotPreview
+              candidates={ballotCandidates}
+              districtName={`${s.districts.districtNum(districtId)} — ${district.name}`}
+            />
+          )}
         </div>
       </div>
 

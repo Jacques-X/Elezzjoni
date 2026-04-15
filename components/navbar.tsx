@@ -8,8 +8,10 @@ import { s } from '@/lib/strings'
 
 const navLinks = [
   { href: '/districts', label: s.nav.districts },
-  { href: '/parties',   label: s.nav.parties },
+  { href: '/parties',   label: s.nav.parties   },
   { href: '/candidates',label: s.nav.candidates },
+  { href: '/ballot',    label: s.nav.ballot     },
+  { href: '/stv',       label: 'STV'            },
 ]
 
 export function Navbar() {
@@ -49,6 +51,7 @@ export function Navbar() {
           </div>
         </div>
 
+        {/* Mobile nav row */}
         <div className="flex md:hidden gap-1 pb-2 overflow-x-auto">
           {navLinks.map((link) => (
             <Link

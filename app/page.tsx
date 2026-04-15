@@ -3,9 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { PostcodeLookup } from '@/components/postcode-lookup'
+import { MaltaMap } from '@/components/malta-map'
 import { cn } from '@/lib/utils'
 import { s } from '@/lib/strings'
-import { MapPin, Users, Building2, ArrowRight } from 'lucide-react'
+import { MapPin, Users, Building2, ArrowRight, BookOpen } from 'lucide-react'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -50,21 +52,38 @@ export default async function HomePage() {
       {/* Stats */}
       <section className="border-b border-border/50 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <StatCard icon={<MapPin className="h-5 w-5" />}    value="13"                                    label={s.home.statDistricts}  />
-            <StatCard icon={<Users className="h-5 w-5" />}    value={candidateCount?.toString() ?? '—'}       label={s.home.statCandidates} />
-            <StatCard icon={<Building2 className="h-5 w-5" />} value={parties?.length?.toString() ?? '—'}     label={s.home.statParties}    />
+          <div className="grid grid-cols-3 gap-6">
+            <StatCard icon={<MapPin className="h-5 w-5" />}    value="13"                                  label={s.home.statDistricts}  />
+            <StatCard icon={<Users className="h-5 w-5" />}     value={candidateCount?.toString() ?? '—'}   label={s.home.statCandidates} />
+            <StatCard icon={<Building2 className="h-5 w-5" />} value={parties?.length?.toString() ?? '—'} label={s.home.statParties}    />
           </div>
         </div>
       </section>
 
-      {/* Quick navigation */}
+      {/* Map + Postcode — two-column on desktop */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-2xl font-bold mb-8">{s.home.quickAccessTitle}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <NavCard href="/districts" title={s.home.card1Title} description={s.home.card1Desc} accent="#CF0A2C" icon={<MapPin className="h-6 w-6" />} />
-          <NavCard href="/parties"   title={s.home.card2Title} description={s.home.card2Desc} accent="#003DA5" icon={<Building2 className="h-6 w-6" />} />
-          <NavCard href="/candidates"title={s.home.card3Title} description={s.home.card3Desc} accent="#6B7280" icon={<Users className="h-6 w-6" />} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* Left: map */}
+          <div>
+            <h2 className="text-2xl font-bold mb-1">{s.home.card1Title}</h2>
+            <p className="text-sm text-muted-foreground mb-6">{s.home.card1Desc}</p>
+            <MaltaMap className="max-w-sm" />
+          </div>
+          {/* Right: postcode lookup + quick access */}
+          <div className="space-y-10">
+            <div className="bg-white border border-border/60 rounded-xl p-6 shadow-sm">
+              <PostcodeLookup />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-6">{s.home.quickAccessTitle}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <NavCard href="/parties"    title={s.home.card2Title} description={s.home.card2Desc} accent="#003DA5" icon={<Building2 className="h-5 w-5" />} />
+                <NavCard href="/candidates" title={s.home.card3Title} description={s.home.card3Desc} accent="#6B7280" icon={<Users className="h-5 w-5" />} />
+                <NavCard href="/ballot"     title={s.nav.ballot}      description={s.ballot.subheading}   accent="#F59E0B" icon={<MapPin className="h-5 w-5" />} />
+                <NavCard href="/stv"        title={s.stv.heading}     description="Tgħallem kif taħdem is-STV b'animazzjoni interattiva." accent="#8B5CF6" icon={<BookOpen className="h-5 w-5" />} />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -108,13 +127,13 @@ function NavCard({ href, title, description, accent, icon }: {
 }) {
   return (
     <Link href={href} className="group block">
-      <Card className="h-full p-6 border-border/60 hover:shadow-md transition-all hover:-translate-y-0.5 overflow-hidden relative">
+      <Card className="h-full p-5 border-border/60 hover:shadow-md transition-all hover:-translate-y-0.5 overflow-hidden relative">
         <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accent }} />
-        <div className="mb-3" style={{ color: accent }}>{icon}</div>
-        <h3 className="font-semibold text-base mb-2 group-hover:text-primary transition-colors">{title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-        <div className="mt-4 flex items-center text-sm font-medium" style={{ color: accent }}>
-          {s.home.cardCta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+        <div className="mb-2.5" style={{ color: accent }}>{icon}</div>
+        <h3 className="font-semibold text-sm mb-1.5 group-hover:text-primary transition-colors">{title}</h3>
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{description}</p>
+        <div className="mt-3 flex items-center text-xs font-medium" style={{ color: accent }}>
+          {s.home.cardCta} <ArrowRight className="ml-1 h-3 w-3" />
         </div>
       </Card>
     </Link>

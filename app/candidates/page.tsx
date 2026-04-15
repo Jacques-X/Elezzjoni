@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CandidateCard } from '@/components/candidate-card'
 import { CandidatesFilter } from '@/components/candidates-filter'
 import { s } from '@/lib/strings'
-import type { CandidateWithParty } from '@/lib/types'
+import { ALL_TAGS, type PriorityTag, type CandidateWithParty } from '@/lib/types'
 
 export const metadata = {
   title: s.candidates.metaTitle,
@@ -11,11 +11,22 @@ export const metadata = {
 }
 
 interface PageProps {
-  searchParams: Promise<{ party?: string; district?: string; q?: string }>
+  searchParams: Promise<{
+    party?: string
+    district?: string
+    q?: string
+    tags?: string | string[]
+  }>
 }
 
 export default async function CandidatesPage({ searchParams }: PageProps) {
-  const { party: partyFilter, district: districtFilter, q } = await searchParams
+  const { party: partyFilter, district: districtFilter, q, tags: rawTags } = await searchParams
+
+  // Normalise tags param — can be a single string or an array
+  const tagParam = rawTags
+    ? (Array.isArray(rawTags) ? rawTags : [rawTags])
+    : []
+  const tagFilter = tagParam.filter((t): t is PriorityTag => ALL_TAGS.includes(t as PriorityTag))
 
   const supabase = await createClient()
 
@@ -29,9 +40,10 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
     .select('*, party:parties(id, name, abbreviation, color_hex)')
     .order('full_name')
 
-  if (partyFilter) query = query.eq('party_id', partyFilter)
+  if (partyFilter)    query = query.eq('party_id', partyFilter)
   if (districtFilter) query = query.contains('districts', [parseInt(districtFilter, 10)])
-  if (q) query = query.ilike('full_name', `%${q}%`)
+  if (q)              query = query.ilike('full_name', `%${q}%`)
+  if (tagFilter.length > 0) query = query.overlaps('priority_tags', tagFilter)
 
   const { data: candidates } = await query
 
@@ -56,6 +68,7 @@ export default async function CandidatesPage({ searchParams }: PageProps) {
         currentParty={partyFilter}
         currentDistrict={districtFilter}
         currentQ={q}
+        currentTags={tagFilter}
       />
 
       <div className="mt-8">

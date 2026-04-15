@@ -12,6 +12,23 @@ export interface District {
   localities: string[]
 }
 
+export type PriorityTag =
+  | 'Ambjent'
+  | 'Infrastruttura'
+  | 'Ekonomija'
+  | 'Saħħa'
+  | 'Edukazzjoni'
+  | 'Akkomodazzjoni'
+  | 'Trasport'
+  | 'Sigurtà'
+  | 'Familja'
+  | 'Reġjun'
+
+export const ALL_TAGS: PriorityTag[] = [
+  'Ambjent', 'Infrastruttura', 'Ekonomija', 'Saħħa', 'Edukazzjoni',
+  'Akkomodazzjoni', 'Trasport', 'Sigurtà', 'Familja', 'Reġjun',
+]
+
 export interface Candidate {
   id: string
   full_name: string
@@ -20,6 +37,7 @@ export interface Candidate {
   photo_url: string | null
   personal_stances: string[] | null
   key_quotes: string[] | null
+  priority_tags: PriorityTag[] | null
   social_links: {
     facebook?: string
     instagram?: string
