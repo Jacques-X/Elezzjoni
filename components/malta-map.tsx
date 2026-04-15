@@ -24,82 +24,85 @@ interface DistrictPath {
 // ViewBox: 0 0 540 320
 // Gozo (D13): top-left separate island
 // Malta main island: x≈148–530, y≈65–310
+// District IDs match actual electoral districts (1–13).
+// Shapes are schematic approximations — replace path `d` strings with
+// accurate GeoJSON-derived paths when available.
 const DISTRICTS: DistrictPath[] = [
-  // ── North (D6 — Mellieħa / St Paul's Bay) ──────────────
+  // ── North (D12 — Mellieħa / Mġarr / San Pawl il-Baħar) ─
   {
-    id: 6, name: "Mellieħa",
+    id: 12, name: "Mellieħa · Mġarr · San Pawl il-Baħar",
     d: 'M 148,65 L 370,65 L 370,155 L 218,155 L 165,148 L 148,120 Z',
     labelX: 258, labelY: 112,
   },
-  // ── NE coast (D5 — Sliema / St Julian's) ───────────────
+  // ── NE coast (D10 — Sliema / San Ġiljan / Gżira) ───────
   {
-    id: 5, name: "Sliema",
+    id: 10, name: "Sliema · San Ġiljan · Gżira",
     d: 'M 370,65 L 510,70 L 522,108 L 520,155 L 370,155 Z',
     labelX: 450, labelY: 112,
   },
-  // ── Upper-center (D4 — Naxxar / Mosta / San Ġwann) ─────
+  // ── Center-north (D11 — Mosta / Attard) ─────────────────
   {
-    id: 4, name: "Naxxar",
+    id: 11, name: "Mosta · Attard",
     d: 'M 218,155 L 312,155 L 312,240 L 218,245 Z',
     labelX: 265, labelY: 198,
   },
-  // ── Center (D3 — Birkirkara / Lija / Attard / Balzan) ──
+  // ── Center (D8 — Birkirkara / Lija / Balzan) ───────────
   {
-    id: 3, name: "Birkirkara",
+    id: 8, name: "Birkirkara · Lija · Balzan",
     d: 'M 312,155 L 370,155 L 370,245 L 312,240 Z',
     labelX: 341, labelY: 198,
   },
-  // ── Center-east (D2 — Msida / Gżira / Ta' Xbiex) ───────
+  // ── Center-east (D9 — Msida / San Ġwann / Swieqi) ───────
   {
-    id: 2, name: "Msida",
+    id: 9, name: "Msida · San Ġwann · Swieqi",
     d: 'M 370,155 L 446,155 L 446,240 L 370,245 Z',
     labelX: 408, labelY: 198,
   },
-  // ── Far east (D1 — Valletta / Floriana / Ħamrun / Marsa)
+  // ── East (D1 — Valletta / Ħamrun / Floriana / Marsa) ────
   {
-    id: 1, name: "Valletta",
+    id: 1, name: "Valletta · Ħamrun · Floriana",
     d: 'M 446,155 L 520,155 L 530,200 L 524,245 L 446,240 Z',
     labelX: 486, labelY: 198,
   },
-  // ── West (D7 — Rabat / Mdina / Dingli) ─────────────────
+  // ── West (D7 — Rabat / Mdina / Żebbuġ / Dingli) ────────
   {
-    id: 7, name: "Rabat",
+    id: 7, name: "Rabat · Mdina · Żebbuġ",
     d: 'M 148,120 L 165,148 L 218,155 L 218,245 L 162,256 L 145,232 Z',
     labelX: 176, labelY: 196,
   },
-  // ── Center-south (D8 — Qormi / Żebbuġ) ────────────────
+  // ── Center-SW (D6 — Qormi / Luqa / Siġġiewi) ───────────
   {
-    id: 8, name: "Qormi",
+    id: 6, name: "Qormi · Luqa · Siġġiewi",
     d: 'M 218,245 L 312,240 L 330,255 L 325,308 L 248,308 L 218,292 Z',
     labelX: 272, labelY: 278,
   },
-  // ── SW (D9 — Żurrieq / Qrendi / Kirkop) ────────────────
+  // ── South (D5 — Żurrieq / Birżebbuġa / Qrendi) ─────────
   {
-    id: 9, name: "Żurrieq",
+    id: 5, name: "Żurrieq · Birżebbuġa · Qrendi",
     d: 'M 145,232 L 162,256 L 218,245 L 218,292 L 196,312 L 148,302 Z',
     labelX: 175, labelY: 278,
   },
-  // ── Center-east lower (D11 — Paola / Tarxien / Fgura) ──
+  // ── Center-SE (D4 — Paola / Tarxien / Fgura) ───────────
   {
-    id: 11, name: "Paola",
+    id: 4, name: "Paola · Tarxien · Fgura",
     d: 'M 312,240 L 370,245 L 390,260 L 386,310 L 326,312 L 325,308 L 330,255 Z',
     labelX: 355, labelY: 278,
   },
-  // ── East lower (D12 — Żabbar / Marsaskala) ─────────────
+  // ── SE inner (D2 — Birgu / Żabbar / Bormla) ────────────
   {
-    id: 12, name: "Żabbar",
+    id: 2, name: "Birgu · Żabbar · Bormla",
     d: 'M 370,245 L 446,240 L 455,258 L 450,310 L 386,312 L 390,260 Z',
     labelX: 420, labelY: 278,
   },
-  // ── SE (D10 — Birżebbuġa / Żejtun / Marsaxlokk) ────────
+  // ── SE coast (D3 — Żejtun / Marsaxlokk / Għaxaq) ───────
   {
-    id: 10, name: "Birżebbuġa",
+    id: 3, name: "Żejtun · Marsaxlokk · Għaxaq",
     d: 'M 446,240 L 524,245 L 530,278 L 494,312 L 450,312 L 455,258 Z',
     labelX: 490, labelY: 278,
   },
   // ── Gozo (D13) ──────────────────────────────────────────
   {
-    id: 13, name: "Għawdex",
+    id: 13, name: "Għawdex (Gozo)",
     d: 'M 8,12 L 115,10 L 128,44 L 114,88 L 62,100 L 8,78 Z',
     labelX: 68, labelY: 55,
   },

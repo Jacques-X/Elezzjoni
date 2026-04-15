@@ -28,8 +28,8 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="flex gap-2 mb-6">
-              <span className="h-6 w-12 rounded-full bg-white border border-border" />
-              <span className="h-6 w-12 rounded-full bg-[#CF0A2C]" />
+              <span className="h-2 w-12 rounded-full bg-white border border-border" />
+              <span className="h-2 w-12 rounded-full bg-[#CF0A2C]" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
               {s.home.heroHeading}<br />
