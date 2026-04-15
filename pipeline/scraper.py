@@ -69,6 +69,54 @@ UA = (
 #   3. Any remaining gaps: add to FACEBOOK_OVERRIDES and rerun.
 #
 # To add a candidate, find their Facebook page URL and add it here:
+WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
+
+# Known differences between DB names and Wikipedia article titles
+WIKIPEDIA_OVERRIDES: dict[str, str] = {
+    "Ivan J Bartolo":             "Ivan J. Bartolo",
+    "Jo Etienne Abela":           "Joe Abela (politician)",
+    "Robert Abela":               "Robert Abela (politician)",
+    "Joe Mizzi":                  "Joe Mizzi (politician)",
+    "Marie Louise Coleiro Preca": "Marie Louise Coleiro Preca",
+}
+
+
+async def fetch_wikipedia_bio(name: str, client: httpx.AsyncClient) -> tuple[str | None, str | None]:
+    """Returns (extract_text, thumbnail_url) from Wikipedia. Both can be None."""
+    title = WIKIPEDIA_OVERRIDES.get(name, name)
+    candidates = [title]
+    parts = name.split()
+    if len(parts) > 2:
+        candidates.append(f"{parts[0]} {parts[-1]}")
+    seen: set[str] = set()
+    for t in candidates:
+        if t in seen:
+            continue
+        seen.add(t)
+        try:
+            resp = await client.get(
+                WIKIPEDIA_API,
+                params={
+                    "action": "query", "titles": t,
+                    "prop": "extracts|pageimages",
+                    "exintro": True, "explaintext": True,
+                    "pithumbsize": 400, "format": "json", "redirects": 1,
+                },
+                timeout=15,
+            )
+            pages = resp.json().get("query", {}).get("pages", {})
+            for page in pages.values():
+                if page.get("pageid", -1) == -1:
+                    continue
+                extract = page.get("extract") or None
+                thumb   = page.get("thumbnail", {}).get("source") or None
+                if extract:
+                    return extract, thumb
+        except Exception as e:
+            print(f"    ⚠ Wikipedia error for '{name}': {e}")
+    return None, None
+
+
 FACEBOOK_OVERRIDES: dict[str, str] = {
     "Robert Abela":              "https://www.facebook.com/robertabela.mt",
     "Bernard Grech":             "https://www.facebook.com/bernardgrechmt",
@@ -240,6 +288,16 @@ async def scrape_facebook(url: str, browser: Browser) -> str:
                     texts.append(t)
 
         combined = "\n\n".join(dict.fromkeys(texts))   # deduplicate
+
+        # Detect Facebook login wall — discard and return empty so website fallback is used
+        login_signals = [
+            "log in to facebook", "create new account", "forgotten password",
+            "sign up for facebook", "facebook login", "you must log in",
+            "log into facebook",
+        ]
+        if any(sig in combined.lower() for sig in login_signals):
+            return ""
+
         return combined[:8000]
 
     except Exception as e:
@@ -307,6 +365,24 @@ Text:
 """
 
 
+def _parse_retry_delay(err: str) -> tuple[float, bool]:
+    """
+    Parses the 'Please try again in Xm Ys' string from a Groq 429 error.
+    Returns (delay_seconds, is_daily_limit).
+    Daily token limits reset tomorrow — no point retrying in the same run.
+    """
+    is_daily = "per day" in err.lower() or "tokens per day" in err.lower() or "tpd" in err.lower()
+
+    # "try again in 3m29.952s" or "try again in 45.3s" or "try again in 2h3m"
+    total = 0.0
+    for unit, multiplier in (("h", 3600), ("m", 60), ("s", 1)):
+        m = re.search(rf"(\d+(?:\.\d+)?)\s*{unit}", err, re.I)
+        if m:
+            total += float(m.group(1)) * multiplier
+
+    return (total if total > 0 else 30.0), is_daily
+
+
 async def enrich(
     name: str,
     text: str,
@@ -335,10 +411,11 @@ async def enrich(
 
         except Exception as e:
             err = str(e)
-            delay_match = re.search(r"retry[^\d]*(\d+(?:\.\d+)?)\s*s", err, re.I)
-            delay = float(delay_match.group(1)) if delay_match else 30.0
-
             if "429" in err or "rate_limit" in err.lower():
+                delay, is_daily = _parse_retry_delay(err)
+                if is_daily:
+                    print(f"    ✋ daily token limit exhausted — skipping remaining LLM calls")
+                    raise _DailyLimitError()
                 if attempt < _retries - 1:
                     print(f"    ⏳ rate limited — waiting {delay:.0f}s then retrying ({attempt+1}/{_retries})…")
                     await asyncio.sleep(delay + 2)
@@ -347,6 +424,10 @@ async def enrich(
             return [], []
 
     return [], []
+
+
+class _DailyLimitError(Exception):
+    """Raised when Groq's daily token quota is exhausted — abort all further LLM calls."""
 
 
 # ── Stage 4: Photo fallback via Wikipedia ────────────────────────────────────
@@ -388,25 +469,37 @@ async def fetch_wikipedia_photo(name: str, client: httpx.AsyncClient) -> str | N
 
 # ── Facebook profile photo ────────────────────────────────────────────────────
 
-async def fetch_facebook_photo(fb_url: str, browser: Browser) -> str | None:
-    """Tries to get the profile picture from their Facebook page."""
-    mobile_url = re.sub(r"https?://(www\.)?facebook\.com", "https://m.facebook.com", fb_url)
-    try:
-        ctx  = await browser.new_context(user_agent=UA, viewport={"width": 390, "height": 844})
-        page = await ctx.new_page()
-        await page.goto(mobile_url, wait_until="domcontentloaded", timeout=15_000)
-        await page.wait_for_timeout(2000)
+async def fetch_facebook_photo(fb_url: str, client: httpx.AsyncClient) -> str | None:
+    """
+    Gets the profile picture for a public Facebook page using the Graph API
+    picture endpoint — no login, no Playwright, no scraping.
 
-        # Profile image is usually the first large <img> on mobile FB profile
-        img = await page.query_selector("img[src*='profile'], img[data-img-orig], header img")
-        src = None
-        if img:
-            src = await img.get_attribute("src")
-
-        await ctx.close()
-        return src if src and src.startswith("http") else None
-    except Exception:
+    e.g. https://www.facebook.com/robertabela.mt
+      →  https://graph.facebook.com/robertabela.mt/picture?type=large&redirect=false
+    """
+    # Extract the page slug from the URL
+    m = re.search(r"facebook\.com/(?:pages/[^/]+/)?([^/?#]+)", fb_url)
+    if not m:
         return None
+    slug = m.group(1).rstrip("/")
+
+    # Try descending sizes: large (200px), normal (100px)
+    for size in ("large", "normal"):
+        try:
+            resp = await client.get(
+                f"https://graph.facebook.com/{slug}/picture",
+                params={"type": size, "redirect": "false"},
+                timeout=10,
+            )
+            data = resp.json().get("data", {})
+            if not data.get("is_silhouette", True):
+                url = data.get("url")
+                if url and url.startswith("http"):
+                    return url
+        except Exception:
+            pass
+
+    return None
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -419,6 +512,7 @@ async def main() -> None:
 
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     groq_client = Groq(api_key=GROQ_API_KEY)
+    daily_limit_hit = False   # set True on first TPD exhaustion; skips LLM for remaining candidates
 
     # Fetch candidates
     q = supabase.table("candidates").select("id, full_name, photo_url, social_links, personal_stances")
@@ -438,6 +532,7 @@ async def main() -> None:
         browser = await pw.chromium.launch(headless=True)
 
         async def process(c: dict) -> None:
+            nonlocal daily_limit_hit
             async with sem:
                 name         = c["full_name"]
                 social_links: dict = c.get("social_links") or {}
@@ -487,28 +582,52 @@ async def main() -> None:
                             source_used = source_used or "personal website"
                             print(f"   ✓  {len(web_text.split())} words from website")
 
+                    # Stage 2c: Wikipedia biography fallback
+                    if len(all_text) < 300:
+                        print(f"   📖 falling back to Wikipedia biography…")
+                        wiki_text, wiki_photo = await fetch_wikipedia_bio(name, http)
+                        if wiki_text:
+                            all_text    = (all_text + "\n\n" + wiki_text).strip()
+                            source_used = source_used or "Wikipedia biography"
+                            print(f"   ✓  {len(wiki_text.split())} words from Wikipedia")
+                        else:
+                            print(f"   –  not found on Wikipedia")
+                        # Use Wikipedia photo as last resort (stored separately below)
+                        if wiki_photo and not c.get("photo_url"):
+                            # Keep as candidate for photo fallback
+                            _wiki_photo = wiki_photo
+                        else:
+                            _wiki_photo = None
+                    else:
+                        _wiki_photo = None
+
                     # Stage 2b: Photo
                     photo_url = c.get("photo_url")
                     if not photo_url:
                         if fb_url:
-                            photo_url = await fetch_facebook_photo(fb_url, browser)
+                            photo_url = await fetch_facebook_photo(fb_url, http)
                         if not photo_url:
                             # Try Wikidata (Commons) first — higher resolution
                             _, _, wd_photo = await wikidata_lookup(name, http)
                             photo_url = wd_photo
                         if not photo_url:
-                            photo_url = await fetch_wikipedia_photo(name, http)
+                            photo_url = _wiki_photo or await fetch_wikipedia_photo(name, http)
                         if photo_url:
                             print(f"   📷 photo found")
 
                     # Stage 3: LLM enrichment
                     stances, quotes = [], []
-                    if all_text:
+                    if daily_limit_hit:
+                        print(f"   –  skipping LLM (daily token limit already exhausted)")
+                    elif all_text:
                         print(f"   🤖 enriching with LLM…")
-                        stances, quotes = await enrich(name, all_text, source_used, groq_client)
+                        try:
+                            stances, quotes = await enrich(name, all_text, source_used, groq_client)
+                        except _DailyLimitError:
+                            daily_limit_hit = True
                         if stances:
                             print(f"   ✓  {len(stances)} stances · {len(quotes)} quotes")
-                        else:
+                        elif not daily_limit_hit:
                             print(f"   –  no policy content found in scraped text")
                     else:
                         print(f"   –  no content scraped (no links found or pages blocked)")
