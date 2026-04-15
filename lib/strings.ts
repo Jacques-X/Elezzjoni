@@ -24,7 +24,7 @@ export const s = {
     districts:  'Distretti',
     parties:    'Partiti',
     candidates: 'Kandidati',
-    ballot:     'Ballotta Tiegħi',
+    ballot:     'PolzaTiegħi',
     stv:        'Kif taħdem is-STV',
     compare:    'Qabbel',
   },
@@ -140,12 +140,12 @@ export const s = {
 
   // ── Ballot (My Ballot) ───────────────────────────────────
   ballot: {
-    heading:     'Il-Ballotta Tiegħi',
+    heading:     'Il-PolzaTiegħi',
     subheading:  'Arranġa l-kandidati magħżulin skont il-preferenza tiegħek.',
     empty:       "Ma ġiex magħżel l-ebda kandidat s'issa.",
     browseCta:   'Esplora l-kandidati',
     clear:       'Ħassar kollox',
-    privacyNote: 'Il-ballotta tinħażen biss fuq il-browser tiegħek. L-ebda dejta ma tiġi mibgħuta.',
+    privacyNote: 'Il-polzatinħażen biss fuq il-browser tiegħek. L-ebda dejta ma tiġi mibgħuta.',
     addTip:      'Agħfas il-⭐ fuq kwalunkwe kandidat biex żżidu hawn.',
     moveUp:      "Mur 'il fuq",
     moveDown:    "Mur 'l isfel",
@@ -178,7 +178,7 @@ export const s = {
     prev:       '← Lura',
     step:       (n: number, total: number) => `Pass ${n} minn ${total}`,
     quota:      (n: number) => `Kwota: ${n}`,
-    tryBallot:  'Ipprova l-Ballotta Tiegħi',
+    tryBallot:  'Ipprova l-PolzaTiegħi',
   },
 
   // ── Postcode Lookup ──────────────────────────────────────
@@ -199,10 +199,10 @@ export const s = {
   // ── Ballot Preview ───────────────────────────────────────
   ballotPreview: {
     triggerBtn:  'Ara l-Format tal-Ballotta',
-    heading:     'Ballotta Elettorali',
+    heading:     'PolzaElettorali',
     instruction: 'Agħti l-ewwel preferenza tiegħek billi tikteb in-numru 1 fil-kaxxa tal-kandidat tiegħek. Kompli bin-numri 2, 3, eċċ.',
     official:    'Użu Uffiċjali Biss',
-    note:        'Dan huwa eżempju tal-format tal-ballotta reali.',
+    note:        'Dan huwa eżempju tal-format tal-polzareali.',
     close:       'Agħlaq',
   },
 
