@@ -95,7 +95,7 @@ export default async function HomePage() {
           <div>
             <h2 className="text-2xl font-bold mb-1">{s.home.card1Title}</h2>
             <p className="text-sm text-muted-foreground mb-6">{s.home.card1Desc}</p>
-            <MaltaMap className="max-w-sm" />
+            <MaltaMap className="w-full" />
           </div>
           {/* Right: postcode lookup + quick access */}
           <div className="space-y-10">

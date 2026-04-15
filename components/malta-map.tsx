@@ -82,8 +82,8 @@ const DISTRICTS: DistrictPath[] = [
   },
 ]
 
-const DISTRICT_COLORS: Record<number, string> = { 1: '#DBEAFE', 2: '#D1FAE5', 3: '#FEF9C3', 4: '#FFE4E6', 5: '#EDE9FE', 6: '#CCFBF1', 7: '#FEF3C7', 8: '#FCE7F3', 9: '#E0F2FE', 10: '#F0FDF4', 11: '#FFF7ED', 12: '#F5F3FF', 13: '#ECFDF5' }
-const HOVER_COLORS: Record<number, string> = { 1: '#BFDBFE', 2: '#A7F3D0', 3: '#FDE68A', 4: '#FECDD3', 5: '#DDD6FE', 6: '#99F6E4', 7: '#FDE68A', 8: '#FBCFE8', 9: '#BAE6FD', 10: '#BBF7D0', 11: '#FED7AA', 12: '#E9D5FF', 13: '#A7F3D0' }
+const DISTRICT_COLORS: Record<number, string> = { 1: '#93C5FD', 2: '#6EE7B7', 3: '#FCD34D', 4: '#FCA5A5', 5: '#C4B5FD', 6: '#5EEAD4', 7: '#FCD34D', 8: '#F9A8D4', 9: '#7DD3FC', 10: '#86EFAC', 11: '#FDBA74', 12: '#D8B4FE', 13: '#6EE7B7' }
+const HOVER_COLORS: Record<number, string> = { 1: '#60A5FA', 2: '#34D399', 3: '#FBBF24', 4: '#F87171', 5: '#A78BFA', 6: '#2DD4BF', 7: '#FBBF24', 8: '#F472B6', 9: '#38BDF8', 10: '#4ADE80', 11: '#FB923C', 12: '#C084FC', 13: '#34D399' }
 
 interface MaltaMapProps {
   highlightId?: number
@@ -103,41 +103,45 @@ export function MaltaMap({ highlightId, className = '' }: MaltaMapProps) {
         role="img"
         aria-label={s.map.ariaLabel}
       >
-        {DISTRICTS.map(({ id, name, d, labelX, labelY }) => {
+        {/* Pass 1: paths (clickable) */}
+        {DISTRICTS.map(({ id, d }) => {
           const isHighlighted = id === highlightId
           const isHovered     = id === hovered
           const fill = isHighlighted || isHovered ? HOVER_COLORS[id] : DISTRICT_COLORS[id]
           return (
-            <g
+            <path
               key={id}
+              d={d}
+              fill={fill}
+              stroke="white"
+              strokeWidth="6"
+              strokeLinejoin="round"
+              className="cursor-pointer transition-colors duration-150"
               onClick={() => router.push(`/districts/${id}`)}
               onMouseEnter={() => setHovered(id)}
               onMouseLeave={() => setHovered(null)}
-              className="cursor-pointer"
-            >
-              <path
-                d={d}
-                fill={fill}
-                stroke="white"
-                strokeWidth="6"
-                strokeLinejoin="round"
-                className="transition-colors duration-150"
-              />
-              <text
-                x={labelX}
-                y={labelY}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="80"
-                fontWeight="700"
-                fill="#374151"
-                className="pointer-events-none"
-              >
-                {id}
-              </text>
-            </g>
+            />
           )
         })}
+        {/* Pass 2: labels always on top */}
+        {DISTRICTS.map(({ id, labelX, labelY }) => (
+          <text
+            key={id}
+            x={labelX}
+            y={labelY}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="90"
+            fontWeight="800"
+            fill="#1F2937"
+            stroke="white"
+            strokeWidth="18"
+            paintOrder="stroke"
+            className="pointer-events-none select-none"
+          >
+            {id}
+          </text>
+        ))}
       </svg>
 
       {hovered && (
