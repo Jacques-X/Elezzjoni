@@ -24,8 +24,8 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className="text-xl font-bold tracking-tight">
               elezzjoni
-              <span className="text-[#CF0A2C]">.</span>
-              <span className="text-[#003DA5]">mt</span>
+              <span className="text-[#003DA5]">.</span> 
+              <span className="text-[#CF0A2C]">mt</span>
             </span>
           </Link>
 
