@@ -8,6 +8,8 @@ import { MaltaMap } from '@/components/malta-map'
 import { cn } from '@/lib/utils'
 import { s } from '@/lib/strings'
 import { MapPin, Users, Building2, ArrowRight, BookOpen } from 'lucide-react'
+import { Playfair_Display } from 'next/font/google'
+const playfair = Playfair_Display({ subsets: ['latin'] })
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -44,9 +46,15 @@ export default async function HomePage() {
               <span className="h-2 w-12 rounded-full bg-white" />
               <span className="h-2 w-12 rounded-full bg-[#CF0A2C]" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-white">
-              {s.home.heroHeading}
-              <span className="whitespace-nowrap font-serif">&nbsp;{s.home.heroHeadingAccent}</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight leading-tight text-white">
+              {/* The whitespace-nowrap prevents the whole block from breaking */}
+              <span className="whitespace-nowrap">
+                {s.home.heroHeading}{' '}
+                {/* The accent word: italicized, serif, and slightly lighter weight */}
+                <span className={cn("italic font-medium", playfair.className)}>
+                  {s.home.heroHeadingAccent}
+                </span>
+              </span>
               <br />
               <span className="text-white/50 font-normal">{s.home.heroSubheading}</span>
             </h1>
