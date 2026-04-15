@@ -8,8 +8,14 @@ import { MaltaMap } from '@/components/malta-map'
 import { cn } from '@/lib/utils'
 import { s } from '@/lib/strings'
 import { MapPin, Users, Building2, ArrowRight, BookOpen } from 'lucide-react'
-import { Playfair_Display } from 'next/font/google'
-const playfair = Playfair_Display({ subsets: ['latin'] })
+import { Cormorant_Garamond } from 'next/font/google'
+
+// Initialize the font with the italic style
+const cormorant = Cormorant_Garamond({ 
+  subsets: ['latin'],
+  weight: ['500'], // Medium weight gives nice ink-like strokes
+  style: ['italic'] 
+})
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -47,11 +53,11 @@ export default async function HomePage() {
               <span className="h-2 w-12 rounded-full bg-[#CF0A2C]" />
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight leading-tight text-white">
-              {/* The whitespace-nowrap prevents the whole block from breaking */}
+              {/* The whitespace-nowrap prevents the whole sentence from breaking */}
               <span className="whitespace-nowrap">
                 {s.home.heroHeading}{' '}
-                {/* The accent word: italicized, serif, and slightly lighter weight */}
-                <span className={cn("italic font-medium", playfair.className)}>
+                {/* The accent word: italicized, calligraphic serif */}
+                <span className={cn("italic font-medium pr-1", cormorant.className)}>
                   {s.home.heroHeadingAccent}
                 </span>
               </span>
