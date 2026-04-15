@@ -66,10 +66,10 @@ export default async function HomePage() {
             </h1>
             <p className="mt-5 text-lg text-white/60 max-w-xl">{s.home.heroDescription}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/districts" className={cn(buttonVariants({ size: 'lg' }), 'bg-white text-black hover:bg-white/90')}>
+              <Link href="/districts" className={cn(buttonVariants({ size: 'lg' }), 'bg-white text-gray-900 hover:bg-white/90 border-0 shadow-lg shadow-black/20')}>
                 {s.home.ctaBrowse} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link href="/candidates" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'border-white/30 text-white hover:bg-white/10 hover:text-white')}>
+              <Link href="/candidates" className={cn(buttonVariants({ size: 'lg' }), 'bg-white/10 text-white hover:bg-white/20 border border-white/20 shadow-none backdrop-blur-sm')}>
                 {s.home.ctaAll}
               </Link>
             </div>
