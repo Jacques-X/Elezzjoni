@@ -63,13 +63,13 @@ export function CandidatesFilter({
           placeholder={s.filters.searchName}
           defaultValue={currentQ ?? ''}
           onChange={(e) => pushParams({ q: e.target.value.trim() || undefined })}
-          className="max-w-xs bg-white"
+          className="w-full sm:max-w-xs bg-white"
         />
 
         <select
           value={currentParty ?? ''}
           onChange={(e) => pushParams({ party: e.target.value || undefined })}
-          className="h-9 rounded-md border border-input bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
+          className="h-9 rounded-md border border-input bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 w-full sm:w-auto"
         >
           <option value="">{s.filters.allParties}</option>
           {parties.map((p) => (
@@ -80,7 +80,7 @@ export function CandidatesFilter({
         <select
           value={currentDistrict ?? ''}
           onChange={(e) => pushParams({ district: e.target.value || undefined })}
-          className="h-9 rounded-md border border-input bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
+          className="h-9 rounded-md border border-input bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 w-full sm:w-auto"
         >
           <option value="">{s.filters.allDistricts}</option>
           {districts.map((d) => (

@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight } from 'lucide-react'
 import { s } from '@/lib/strings'
+import { MaltaMap } from '@/components/malta-map'
 
 export const metadata = {
   title: s.districts.metaTitle,
@@ -33,6 +34,10 @@ export default async function DistrictsPage() {
         </div>
         <h1 className="text-3xl font-bold">{s.districts.heading}</h1>
         <p className="mt-2 text-muted-foreground">{s.districts.subheading}</p>
+      </div>
+
+      <div className="mb-10">
+        <MaltaMap className="max-w-lg mx-auto" />
       </div>
 
 {districts && districts.length > 0 ? (

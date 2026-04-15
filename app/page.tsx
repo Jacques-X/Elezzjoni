@@ -54,7 +54,7 @@ export default async function HomePage() {
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight leading-tight text-white">
               {/* The whitespace-nowrap prevents the whole sentence from breaking */}
-              <span className="whitespace-nowrap">
+              <span className="md:whitespace-nowrap">
                 {s.home.heroHeading}{' '}
                 {/* The accent word: italicized, calligraphic serif */}
                 <span className={cn("italic font-medium pr-1", merriweather.className)}>

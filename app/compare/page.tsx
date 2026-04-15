@@ -106,32 +106,34 @@ export default async function ComparePage({ searchParams }: PageProps) {
       <h1 className="text-2xl font-bold mb-8">{s.compare.heading}</h1>
 
       {/* Header cards */}
-      <div className="grid grid-cols-[1fr_48px_1fr] gap-3 mb-6 items-center">
-        <CandidateHeader
-          candidate={ca}
-          party={partyA}
-          align="right"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_48px_1fr] gap-3 mb-6 items-center">
+        <CandidateHeader candidate={ca} party={partyA} align="right" />
         <div className="text-center text-sm font-bold text-muted-foreground">{s.compare.vs}</div>
-        <CandidateHeader
-          candidate={cb}
-          party={partyB}
-          align="left"
-        />
+        <CandidateHeader candidate={cb} party={partyB} align="left" />
       </div>
 
       {/* Comparison table */}
       <Card className="overflow-hidden border-border/60 mb-6">
         {rows.map((row, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-[1fr_100px_1fr] border-b last:border-b-0"
-          >
-            <div className="p-3 flex items-center justify-end text-sm">{row.a}</div>
-            <div className="p-3 flex items-center justify-center text-[11px] font-semibold text-muted-foreground bg-muted/40 border-x text-center">
-              {row.label}
+          <div key={i} className="border-b last:border-b-0">
+            {/* Mobile: stacked */}
+            <div className="sm:hidden">
+              <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground bg-muted/40 border-b text-center">
+                {row.label}
+              </div>
+              <div className="grid grid-cols-2 divide-x">
+                <div className="p-3 flex items-center justify-center text-sm">{row.a}</div>
+                <div className="p-3 flex items-center justify-center text-sm">{row.b}</div>
+              </div>
             </div>
-            <div className="p-3 flex items-center text-sm">{row.b}</div>
+            {/* Desktop: side-by-side */}
+            <div className="hidden sm:grid grid-cols-[1fr_100px_1fr]">
+              <div className="p-3 flex items-center justify-end text-sm">{row.a}</div>
+              <div className="p-3 flex items-center justify-center text-[11px] font-semibold text-muted-foreground bg-muted/40 border-x text-center">
+                {row.label}
+              </div>
+              <div className="p-3 flex items-center text-sm">{row.b}</div>
+            </div>
           </div>
         ))}
       </Card>
@@ -143,17 +145,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
             <Sparkles size={15} className="text-muted-foreground" />
             <h2 className="font-semibold">{s.compare.stances}</h2>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <StancesList
-              stances={ca.personal_stances}
-              color={partyA?.color_hex}
-              name={ca.full_name}
-            />
-            <StancesList
-              stances={cb.personal_stances}
-              color={partyB?.color_hex}
-              name={cb.full_name}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <StancesList stances={ca.personal_stances} color={partyA?.color_hex} name={ca.full_name} />
+            <StancesList stances={cb.personal_stances} color={partyB?.color_hex} name={cb.full_name} />
           </div>
         </div>
       )}

@@ -41,7 +41,7 @@ export default async function PartyPage({ params }: PageProps) {
 
       <div className="rounded-xl p-8 mb-10 text-white relative overflow-hidden" style={{ backgroundColor: party.color_hex }}>
         <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-        <div className="relative flex items-center gap-5">
+        <div className="relative flex flex-wrap items-center gap-5">
           {party.logo_url ? (
             <Image src={party.logo_url} alt={`${party.name} logo`} width={72} height={72} className="rounded-lg object-contain bg-white/20 p-2" />
           ) : (
