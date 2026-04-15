@@ -8,12 +8,12 @@ import { MaltaMap } from '@/components/malta-map'
 import { cn } from '@/lib/utils'
 import { s } from '@/lib/strings'
 import { MapPin, Users, Building2, ArrowRight, BookOpen } from 'lucide-react'
-import { Cormorant_Garamond } from 'next/font/google'
+import { Merriweather } from 'next/font/google'
 
-// Initialize the font with the italic style
-const cormorant = Cormorant_Garamond({ 
+// Initialize Merriweather with the heaviest weight (Black)
+const merriweather = Merriweather({ 
   subsets: ['latin'],
-  weight: ['500'], // Medium weight gives nice ink-like strokes
+  weight: ['900'], // Use '700' if 900 feels slightly too thick
   style: ['italic'] 
 })
 
@@ -57,7 +57,7 @@ export default async function HomePage() {
               <span className="whitespace-nowrap">
                 {s.home.heroHeading}{' '}
                 {/* The accent word: italicized, calligraphic serif */}
-                <span className={cn("italic font-medium pr-1", cormorant.className)}>
+                <span className={cn("italic font-medium pr-1", merriweather.className)}>
                   {s.home.heroHeadingAccent}
                 </span>
               </span>

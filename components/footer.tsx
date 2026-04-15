@@ -8,8 +8,8 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <span className="text-lg font-bold tracking-tight">
-              elezzjoni<span className="text-[#CF0A2C]">.</span>
-              <span className="text-[#003DA5]">mt</span>
+              elezzjoni<span className="text-[#003DA5]">.</span>
+              <span className="text-[#CF0A2C]">mt</span> 
             </span>
             <p className="mt-2 text-sm text-muted-foreground">{s.site.tagline}</p>
           </div>
