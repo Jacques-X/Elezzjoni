@@ -23,24 +23,37 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-white border-b border-border/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#CF0A2C]/5 via-transparent to-[#003DA5]/5 pointer-events-none" />
+      <section className="relative overflow-hidden border-b border-border/50" style={{ background: '#0a0a1a' }}>
+        {/* Animated mesh gradient blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-30"
+            style={{ background: 'radial-gradient(circle, #CF0A2C 0%, transparent 70%)', filter: 'blur(60px)' }} />
+          <div className="absolute -top-16 right-0 w-[500px] h-[500px] rounded-full opacity-25"
+            style={{ background: 'radial-gradient(circle, #003DA5 0%, transparent 70%)', filter: 'blur(60px)' }} />
+          <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] rounded-full opacity-20"
+            style={{ background: 'radial-gradient(circle, #7C3AED 0%, transparent 70%)', filter: 'blur(80px)' }} />
+          <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] rounded-full opacity-20"
+            style={{ background: 'radial-gradient(circle, #0EA5E9 0%, transparent 70%)', filter: 'blur(70px)' }} />
+          {/* Subtle grid overlay */}
+          <div className="absolute inset-0 opacity-[0.04]"
+            style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl relative">
             <div className="flex gap-2 mb-6">
-              <span className="h-2 w-12 rounded-full bg-white border border-border" />
+              <span className="h-2 w-12 rounded-full bg-white/20" />
               <span className="h-2 w-12 rounded-full bg-[#CF0A2C]" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-white">
               {s.home.heroHeading}<br />
-              <span className="text-muted-foreground font-normal">{s.home.heroSubheading}</span>
+              <span className="text-white/50 font-normal">{s.home.heroSubheading}</span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-xl">{s.home.heroDescription}</p>
+            <p className="mt-5 text-lg text-white/60 max-w-xl">{s.home.heroDescription}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/districts" className={cn(buttonVariants({ size: 'lg' }))}>
+              <Link href="/districts" className={cn(buttonVariants({ size: 'lg' }), 'bg-white text-black hover:bg-white/90')}>
                 {s.home.ctaBrowse} <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link href="/candidates" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
+              <Link href="/candidates" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'border-white/30 text-white hover:bg-white/10 hover:text-white')}>
                 {s.home.ctaAll}
               </Link>
             </div>
