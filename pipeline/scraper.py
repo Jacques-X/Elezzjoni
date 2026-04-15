@@ -1,278 +1,242 @@
 """
-Elezzjoni.mt — Data Pipeline
-Scrapes electoral.gov.mt and party sites, enriches with LLM, upserts to Supabase.
+Elezzjoni.mt — Enrichment Pipeline
+
+Reads candidates already in the Supabase database, then for each one:
+  1. Fetches biography text + thumbnail from Wikipedia (public API, no scraping)
+  2. Enriches with Gemini LLM → personal_stances + key_quotes
+  3. Updates photo_url from Wikipedia if the candidate has none
+  4. Writes back to Supabase
+
+Usage:
+  cd pipeline
+  # Copy env vars from your .env.local, or export them manually:
+  #   export SUPABASE_URL=...
+  #   export SUPABASE_SERVICE_ROLE_KEY=...
+  #   export GEMINI_API_KEY=...
+  python scraper.py
+
+Flags (edit at the top of this file):
+  ENRICH_ALL   = True  → re-enrich even candidates that already have stances
+  PHOTOS_ONLY  = True  → skip LLM, only fill in missing photos
 """
 
 import asyncio
 import json
 import os
 import re
-from dataclasses import dataclass, field
-from typing import Optional
 
-from bs4 import BeautifulSoup
+import httpx
 from dotenv import load_dotenv
-from playwright.async_api import async_playwright
 from supabase import create_client, Client
 import google.generativeai as genai
 
 load_dotenv()
 
-SUPABASE_URL = os.environ["SUPABASE_URL"]
+# ── Config ────────────────────────────────────────────────────────────────────
+
+SUPABASE_URL             = os.environ["SUPABASE_URL"]
 SUPABASE_SERVICE_ROLE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+GEMINI_API_KEY           = os.environ["GEMINI_API_KEY"]
 
-ELECTORAL_BASE = "https://electoral.gov.mt"
+GEMINI_MODEL = "gemini-1.5-flash"   # or "gemini-2.0-flash" if available on your key
+WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 
-# ─────────────────────────────────────────────
-# Data models
-# ─────────────────────────────────────────────
+ENRICH_ALL  = False   # Set True to re-enrich candidates that already have stances
+PHOTOS_ONLY = False   # Set True to only update missing photos, skip LLM
 
-@dataclass
-class ScrapedCandidate:
-    full_name: str
-    party_abbreviation: str
-    districts: list[int]
-    photo_url: Optional[str] = None
-    facebook: Optional[str] = None
-    instagram: Optional[str] = None
-    website: Optional[str] = None
-    bio_text: Optional[str] = None
-    incumbent: bool = False
+# Known name differences between our DB and Wikipedia article titles
+WIKIPEDIA_OVERRIDES: dict[str, str] = {
+    "Ivan J Bartolo":           "Ivan J. Bartolo",
+    "Jo Etienne Abela":         "Joe Abela (politician)",
+    "Silvio Schembri":          "Silvio Schembri",
+    "Glenn Bedingfield":        "Glenn Bedingfield",
+    "Byron Camilleri":          "Byron Camilleri",
+    "Edward Zammit Lewis":      "Edward Zammit Lewis",
+    "Miriam Dalli":             "Miriam Dalli",
+    "Chris Fearne":             "Chris Fearne",
+    "Robert Abela":             "Robert Abela (politician)",
+    "Bernard Grech":            "Bernard Grech",
+    "Adrian Delia":             "Adrian Delia",
+    "Simon Busuttil":           "Simon Busuttil",
+    "Lawrence Gonzi":           "Lawrence Gonzi",
+    "Jason Azzopardi":          "Jason Azzopardi",
+    "Roberta Metsola":          "Roberta Metsola",
+    "Ian Borg":                 "Ian Borg",
+    "Stefan Zrinzo Azzopardi":  "Stefan Zrinzo Azzopardi",
+    "Clyde Caruana":            "Clyde Caruana",
+    "Owen Bonnici":             "Owen Bonnici",
+    "Evarist Bartolo":          "Evarist Bartolo",
+    "George Vella":             "George Vella",
+    "Marie Louise Coleiro Preca": "Marie Louise Coleiro Preca",
+    "Carmelo Abela":            "Carmelo Abela",
+    "Joe Mizzi":                "Joe Mizzi (politician)",
+    "Konrad Mizzi":             "Konrad Mizzi",
+    "Franco Mercieca":          "Franco Mercieca",
+    "Justyne Caruana":          "Justyne Caruana",
+    "Rosianne Cutajar":         "Rosianne Cutajar",
+}
 
+# ── Wikipedia ─────────────────────────────────────────────────────────────────
 
-@dataclass
-class EnrichedCandidate(ScrapedCandidate):
-    personal_stances: list[str] = field(default_factory=list)
-    key_quotes: list[str] = field(default_factory=list)
-
-
-# ─────────────────────────────────────────────
-# Scraper
-# ─────────────────────────────────────────────
-
-async def scrape_candidates() -> list[ScrapedCandidate]:
+async def fetch_wikipedia(
+    client: httpx.AsyncClient,
+    name: str,
+) -> tuple[str | None, str | None]:
     """
-    Scrapes the Electoral Commission candidate list.
-    URL pattern: https://electoral.gov.mt/ElectionResults/Candidates
-    Adjust selectors to match the live site structure.
+    Returns (extract_text, thumbnail_url) for the given name.
+    Both can be None if the page doesn't exist or has no image.
     """
-    candidates: list[ScrapedCandidate] = []
+    title = WIKIPEDIA_OVERRIDES.get(name, name)
 
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/124.0.0.0 Safari/537.36"
-            ),
-            locale="mt-MT",
-            viewport={"width": 1280, "height": 800},
+    try:
+        resp = await client.get(
+            WIKIPEDIA_API,
+            params={
+                "action":      "query",
+                "titles":      title,
+                "prop":        "extracts|pageimages",
+                "exintro":     True,
+                "explaintext": True,
+                "pithumbsize": 400,
+                "format":      "json",
+                "redirects":   1,
+            },
+            timeout=15,
         )
-        page = await context.new_page()
-
-        print("Loading electoral.gov.mt candidate list…")
-        await page.goto(f"{ELECTORAL_BASE}/ElectionResults/Candidates", wait_until="networkidle")
-
-        # Dump the HTML so you can inspect selectors if needed
-        html = await page.content()
-        with open("debug_candidates.html", "w", encoding="utf-8") as f:
-            f.write(html)
-        print("  HTML saved to debug_candidates.html for selector inspection.")
-
-        soup = BeautifulSoup(html, "html.parser")
-
-        # Adjust selector to match actual site structure
-        rows = soup.select("table.candidates-table tbody tr")
-        if not rows:
-            # Fallback: try a card-based layout
-            rows = soup.select(".candidate-card, .candidate-item")
-
-        for row in rows:
-            try:
-                name_el = row.select_one(".candidate-name, td:nth-child(1)")
-                party_el = row.select_one(".candidate-party, td:nth-child(2)")
-                district_el = row.select_one(".candidate-district, td:nth-child(3)")
-
-                if not name_el:
-                    continue
-
-                full_name = name_el.get_text(strip=True)
-                party_abbr = party_el.get_text(strip=True) if party_el else "IND"
-
-                # Parse district numbers from text like "District 1, District 3"
-                district_text = district_el.get_text(strip=True) if district_el else ""
-                district_nums = [int(n) for n in re.findall(r"\b(\d{1,2})\b", district_text)
-                                 if 1 <= int(n) <= 13]
-
-                photo_el = row.select_one("img")
-                photo_url = photo_el.get("src") if photo_el else None
-                if photo_url and not photo_url.startswith("http"):
-                    photo_url = ELECTORAL_BASE + photo_url
-
-                candidates.append(ScrapedCandidate(
-                    full_name=full_name,
-                    party_abbreviation=party_abbr,
-                    districts=district_nums,
-                    photo_url=photo_url,
-                ))
-            except Exception as e:
-                print(f"  ⚠ Error parsing row: {e}")
-                continue
-
-        await browser.close()
-
-    print(f"Scraped {len(candidates)} candidates.")
-    return candidates
+        pages = resp.json().get("query", {}).get("pages", {})
+        for page in pages.values():
+            if page.get("pageid", -1) == -1:
+                return None, None   # "missing" page
+            extract = page.get("extract") or None
+            thumb   = page.get("thumbnail", {}).get("source") or None
+            return extract, thumb
+    except Exception as e:
+        print(f"    ⚠ Wikipedia error for '{name}': {e}")
+    return None, None
 
 
-# ─────────────────────────────────────────────
-# LLM enrichment
-# ─────────────────────────────────────────────
+# ── LLM enrichment ────────────────────────────────────────────────────────────
 
-def build_llm_prompt(candidate_name: str, bio_text: str) -> str:
-    return f"""
-You are a neutral political analyst. Analyse the following text about {candidate_name} and extract:
-1. Up to 3 concise bullet-point stances on policy issues (max 20 words each).
-2. Up to 3 direct quotes attributed to the candidate.
+def build_prompt(name: str, bio: str) -> str:
+    return f"""You are a neutral political analyst writing for a civic information portal.
+Analyse the following Wikipedia biography of {name} and extract:
 
-Return ONLY valid JSON in this exact schema:
+1. Up to 4 concise policy stances (max 25 words each) — focus on concrete positions,
+   not career facts.  Write in third person.
+2. Up to 3 direct quotes attributed to {name} from public record.
+
+Return ONLY valid JSON — no markdown, no extra text:
 {{
-  "personal_stances": ["stance 1", "stance 2", "stance 3"],
+  "personal_stances": ["stance 1", "stance 2"],
   "key_quotes": ["quote 1", "quote 2"]
 }}
 
-If there is insufficient information for stances or quotes, return empty arrays.
-Do not fabricate information. Only use what is in the text.
+If there is insufficient information return empty arrays. Do NOT fabricate.
 
-Text:
-\"\"\"
-{bio_text[:4000]}
-\"\"\"
+Biography:
+\"\"\"{bio[:5000]}\"\"\"
 """
 
 
-async def enrich_candidate(
-    candidate: ScrapedCandidate,
+async def enrich_with_llm(
+    name: str,
+    bio: str,
     model: genai.GenerativeModel,
-) -> EnrichedCandidate:
-    enriched = EnrichedCandidate(**candidate.__dict__)
-
-    if not candidate.bio_text or len(candidate.bio_text.strip()) < 50:
-        return enriched
-
+) -> tuple[list[str], list[str]]:
     try:
-        prompt = build_llm_prompt(candidate.full_name, candidate.bio_text)
+        prompt   = build_prompt(name, bio)
         response = await asyncio.to_thread(model.generate_content, prompt)
-        text = response.text.strip()
-
-        # Strip markdown code fences if present
-        text = re.sub(r"^```(?:json)?\s*", "", text)
-        text = re.sub(r"\s*```$", "", text)
-
-        data = json.loads(text)
-        enriched.personal_stances = data.get("personal_stances", [])[:3]
-        enriched.key_quotes = data.get("key_quotes", [])[:3]
+        text     = response.text.strip()
+        text     = re.sub(r"^```(?:json)?\s*", "", text)
+        text     = re.sub(r"\s*```$", "",        text)
+        data     = json.loads(text)
+        stances  = data.get("personal_stances", [])[:4]
+        quotes   = data.get("key_quotes", [])[:3]
+        return stances, quotes
     except Exception as e:
-        print(f"  ⚠ LLM enrichment failed for {candidate.full_name}: {e}")
-
-    return enriched
-
-
-# ─────────────────────────────────────────────
-# Supabase upsert
-# ─────────────────────────────────────────────
-
-def get_party_map(supabase: Client) -> dict[str, str]:
-    """Returns {abbreviation: party_uuid}"""
-    response = supabase.table("parties").select("id, abbreviation").execute()
-    return {row["abbreviation"]: row["id"] for row in response.data}
+        print(f"    ⚠ LLM error for '{name}': {e}")
+        return [], []
 
 
-def upsert_candidates(supabase: Client, candidates: list[EnrichedCandidate]) -> None:
-    party_map = get_party_map(supabase)
-
-    records = []
-    for c in candidates:
-        party_id = party_map.get(c.party_abbreviation) or party_map.get("IND")
-
-        social_links: dict[str, str] = {}
-        if c.facebook:
-            social_links["facebook"] = c.facebook
-        if c.instagram:
-            social_links["instagram"] = c.instagram
-        if c.website:
-            social_links["website"] = c.website
-
-        record: dict = {
-            "full_name": c.full_name,
-            "party_id": party_id,
-            "districts": c.districts,
-            "photo_url": c.photo_url,
-            "social_links": social_links or None,
-            "incumbent": c.incumbent,
-            "last_updated": "now()",
-        }
-
-        if c.personal_stances:
-            record["personal_stances"] = c.personal_stances
-        if c.key_quotes:
-            record["key_quotes"] = c.key_quotes
-
-        records.append(record)
-
-    if not records:
-        print("No records to upsert.")
-        return
-
-    # Upsert in batches of 50
-    batch_size = 50
-    for i in range(0, len(records), batch_size):
-        batch = records[i : i + batch_size]
-        supabase.table("candidates").upsert(
-            batch,
-            on_conflict="full_name,party_id",
-        ).execute()
-        print(f"  ✓ Upserted batch {i // batch_size + 1} ({len(batch)} records)")
-
-
-# ─────────────────────────────────────────────
-# Main
-# ─────────────────────────────────────────────
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 async def main() -> None:
-    print("=== Elezzjoni.mt Data Pipeline ===")
+    print("=== Elezzjoni.mt Enrichment Pipeline ===\n")
 
-    # Init Supabase (service role bypasses RLS)
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-    # Init Gemini
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel(GEMINI_MODEL)
 
-    # 1. Scrape
-    scraped = await scrape_candidates()
+    # Fetch candidates to process
+    query = supabase.table("candidates").select("id, full_name, photo_url, personal_stances")
+    if not ENRICH_ALL:
+        # Only process candidates missing stances (or photos if PHOTOS_ONLY)
+        if PHOTOS_ONLY:
+            query = query.is_("photo_url", "null")
+        else:
+            query = query.is_("personal_stances", "null")
 
-    if not scraped:
-        print("No candidates scraped — check selectors.")
+    response   = query.execute()
+    candidates = response.data
+
+    if not candidates:
+        print("Nothing to process — all candidates already enriched.")
+        print("Set ENRICH_ALL = True at the top of scraper.py to re-run on everyone.")
         return
 
-    # 2. Enrich with LLM (concurrent, max 5 at a time to respect rate limits)
-    print(f"Enriching {len(scraped)} candidates with LLM…")
-    semaphore = asyncio.Semaphore(5)
+    print(f"Processing {len(candidates)} candidates…\n")
 
-    async def enrich_with_limit(c: ScrapedCandidate) -> EnrichedCandidate:
-        async with semaphore:
-            return await enrich_candidate(c, model)
+    updated_photos   = 0
+    updated_stances  = 0
+    not_found        = []
 
-    enriched = await asyncio.gather(*[enrich_with_limit(c) for c in scraped])
+    sem = asyncio.Semaphore(4)   # limit concurrent Wikipedia + LLM calls
 
-    # 3. Upsert to Supabase
-    print("Upserting to Supabase…")
-    upsert_candidates(supabase, list(enriched))
+    async def process(c: dict) -> None:
+        nonlocal updated_photos, updated_stances
+        async with sem:
+            name = c["full_name"]
+            print(f"  {name}")
 
-    print("=== Pipeline complete ===")
+            async with httpx.AsyncClient() as http:
+                bio, thumb = await fetch_wikipedia(http, name)
+
+            update: dict = {}
+
+            # Photo
+            if thumb and not c.get("photo_url"):
+                update["photo_url"] = thumb
+                updated_photos += 1
+                print(f"    📷  photo found")
+            elif not thumb:
+                print(f"    –   no Wikipedia photo")
+
+            # LLM enrichment
+            if not PHOTOS_ONLY and bio and len(bio.strip()) > 100:
+                stances, quotes = await enrich_with_llm(name, bio, model)
+                if stances:
+                    update["personal_stances"] = stances
+                    update["key_quotes"]        = quotes
+                    updated_stances += 1
+                    print(f"    ✓   {len(stances)} stances, {len(quotes)} quotes")
+                else:
+                    print(f"    –   LLM returned no stances")
+            elif not PHOTOS_ONLY and not bio:
+                not_found.append(name)
+                print(f"    –   not found on Wikipedia")
+
+            if update:
+                update["last_updated"] = "now()"
+                supabase.table("candidates").update(update).eq("id", c["id"]).execute()
+
+    await asyncio.gather(*[process(c) for c in candidates])
+
+    print(f"\n{'─'*40}")
+    print(f"Photos updated : {updated_photos}")
+    if not PHOTOS_ONLY:
+        print(f"Stances updated: {updated_stances}")
+    print(f"Not on Wikipedia ({len(not_found)}): {', '.join(not_found) or 'none'}")
+    print("=== Done ===")
 
 
 if __name__ == "__main__":
