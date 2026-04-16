@@ -674,11 +674,12 @@ async def main() -> None:
                         update["personal_stances"]     = enrichment.get("personal_stances", [])
                         update["key_quotes"]           = enrichment.get("key_quotes", [])
 
-                    if photo_url and not c.get("photo_url"):
+                    if photo_url:
                         update["photo_url"] = photo_url
 
                     if update:
-                        update["last_updated"] = "now()"
+                        from datetime import datetime, timezone
+                        update["last_updated"] = datetime.now(timezone.utc).isoformat()
                         if DRY_RUN:
                             print(f"   [DRY RUN] would write: {list(update.keys())}")
                             if "party_reliance_score" in update:
