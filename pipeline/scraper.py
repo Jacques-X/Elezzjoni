@@ -12,16 +12,18 @@ Phase 2: Parliamentary Voting Records
   3. PARSE      — uses llama3.1:8b to extract vote type, bill name, and individual votes
   4. SAVE       — stores voting records to parliamentary_votes table per candidate
 
-Phase 3+: Full Enrichment (future)
-  1. DISCOVER   — finds Facebook page + website via manual overrides → Wikidata
-  2. SCRAPE     — pulls content in priority order:
-                    a) Facebook (Playwright, optionally authenticated via state.json)
-                    b) Personal website (trafilatura — strips navs/footers automatically)
-                    c) Local news search (Google dorks → trafilatura on first result)
-  3. ENRICH     — llama3.1:8b via Ollama:
-                    - policy stances & quotes
-                    - parliament consistency, fact-checking, etc.
-  4. SAVE       — upserts enrichment + metadata to Supabase
+Phase 3: (skipped)
+
+Phase 4: Party Intelligence (Comprehensive Party Data)
+  1. FETCH      — downloads party manifestos, leadership pages, website content
+  2. EXTRACT    — manifesto PDFs via pdfplumber, leadership from HTML
+  3. ENRICH     — uses llama3.1:8b to extract structured policy positions from manifestos
+  4. PARSE      — scrapes party statements, media coverage, governance structure
+  5. SAVE       — stores manifestos, policies, leadership, news mentions by party
+
+Phase 5+: (on pause)
+  - Media coverage & fact-checking
+  - Advanced policy analysis & comparison
 
 Run:
   cd pipeline
@@ -81,6 +83,11 @@ from scraper_business import (
 # Phase 2: Parliamentary Voting Records
 from scraper_parliament import (
     scrape_parliamentary_votes,
+)
+
+# Phase 4: Party Intelligence
+from scraper_parties import (
+    scrape_party_intelligence,
 )
 
 load_dotenv(dotenv_path=".env")
@@ -1021,6 +1028,106 @@ async def main() -> None:
 
     except Exception as e:
         print(f"  ⚠ Parliamentary voting scraper failed: {e}")
+
+    # ── PHASE 4: Party Intelligence ────────────────────────────────────────
+    print("\n=== Phase 4: Party Intelligence ===\n")
+
+    try:
+        # Scrape comprehensive party data
+        party_results = await scrape_party_intelligence(
+            party_codes=None,  # Scrape all parties
+            ollama_url=OLLAMA_URL,
+            ollama_model=OLLAMA_MODEL,
+        )
+
+        print(f"\n  Scraped {len(party_results)} party(ies)\n")
+
+        # Save party data to database
+        if not DRY_RUN:
+            for party_data in party_results:
+                try:
+                    # Upsert party into parties table
+                    party_id = supabase.table("parties").upsert({
+                        "party_code": party_data["party_code"],
+                        "party_name": party_data["party_name"],
+                        "party_name_mt": party_data["party_name_mt"],
+                        "website_url": party_data["website"],
+                        "color_hex": party_data["color"],
+                        "last_updated": party_data["fetched_at"],
+                    }, on_conflict="party_code").execute().data[0]["id"]
+
+                    # Save manifesto if available
+                    if party_data["manifesto_url"] and party_data["manifesto_text"]:
+                        try:
+                            supabase.table("party_manifestos").insert({
+                                "party_id": party_id,
+                                "title": f"{party_data['party_name']} Manifesto",
+                                "source_url": party_data["manifesto_url"],
+                                "raw_text": party_data["manifesto_text"],
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert manifesto for {party_data['party_code']}: {e}")
+
+                    # Save policies
+                    for policy in party_data["policies"]:
+                        try:
+                            supabase.table("party_policies").insert({
+                                "party_id": party_id,
+                                "policy_area": policy.get("policy_area"),
+                                "policy_position": policy.get("position"),
+                                "priority": policy.get("priority"),
+                                "confidence": policy.get("confidence"),
+                                "source_type": "manifesto",
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert policy: {e}")
+
+                    # Save leadership
+                    for leader in party_data["leadership"]:
+                        try:
+                            supabase.table("party_leadership").insert({
+                                "party_id": party_id,
+                                "leader_name": leader.get("name"),
+                                "role": leader.get("role"),
+                                "bio": leader.get("bio"),
+                                "photo_url": leader.get("photo_url"),
+                                "is_current": True,  # Assume current unless date info available
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert leader {leader.get('name')}: {e}")
+
+                    # Save statements
+                    for statement in party_data["statements"]:
+                        try:
+                            supabase.table("party_statements").insert({
+                                "party_id": party_id,
+                                "statement_type": "news",
+                                "title": statement.get("title"),
+                                "source_url": statement.get("url"),
+                                "is_official": False,
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert statement: {e}")
+
+                    # Save news mentions
+                    for mention in party_data["news_mentions"]:
+                        try:
+                            supabase.table("party_media_mentions").insert({
+                                "party_id": party_id,
+                                "article_url": mention.get("url"),
+                                "source": mention.get("source"),
+                                "headline": mention.get("headline"),
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert media mention: {e}")
+
+                except Exception as e:
+                    print(f"    ⚠ Failed to save party data for {party_data['party_code']}: {e}")
+        else:
+            print("  [DRY RUN] would insert party intelligence data")
+
+    except Exception as e:
+        print(f"  ⚠ Party intelligence scraper failed: {e}")
 
     # Stop Ollama if we were the ones who started it
     if ollama_proc is not None:
