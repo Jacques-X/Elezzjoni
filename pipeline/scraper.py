@@ -1,22 +1,27 @@
 """
-Elezzjoni.mt — Candidate Enrichment Pipeline
-=============================================
+Elezzjoni.mt — Comprehensive Candidate Enrichment Pipeline
+===========================================================
 
-Reads candidates from Supabase and runs each through four stages:
+Phase 1: Business Interests & Disclosures (Foundation)
+  1. IDENTITY   — check parliament roster, scrape business registry, asset disclosures, court records
+  2. SAVE       — populate candidates table + candidate_business_interests, candidate_disclosures, candidate_legal_records tables
 
-  1. DISCOVER  — finds Facebook page + website via manual overrides → Wikidata
-  2. SCRAPE    — pulls content in priority order:
-                   a) Facebook (Playwright, optionally authenticated via state.json)
-                   b) Personal website (trafilatura — strips navs/footers automatically)
-                   c) Local news search (DuckDuckGo → trafilatura on first result)
-  3. ENRICH    — llama3.1:8b running locally via Ollama scores the candidate's
-                 independence from their party brand and extracts stances + quotes
-  4. SAVE      — upserts the following columns back to Supabase:
-                   party_reliance_score  INTEGER  (0 = fully independent, 100 = party mouthpiece)
-                   score_justification   TEXT
-                   personal_stances      TEXT[]   (up to 4 policy stances)
-                   key_quotes            TEXT[]   (up to 3 direct quotes)
-                   photo_url             TEXT
+Phase 2: Parliamentary Voting Records
+  1. FETCH      — downloads plenary session PDFs from parlament.mt
+  2. EXTRACT    — searches for voting keywords ("Diviżjoni", "Iva", "Le") in PDF text
+  3. PARSE      — uses llama3.1:8b to extract vote type, bill name, and individual votes
+  4. SAVE       — stores voting records to parliamentary_votes table per candidate
+
+Phase 3+: Full Enrichment (future)
+  1. DISCOVER   — finds Facebook page + website via manual overrides → Wikidata
+  2. SCRAPE     — pulls content in priority order:
+                    a) Facebook (Playwright, optionally authenticated via state.json)
+                    b) Personal website (trafilatura — strips navs/footers automatically)
+                    c) Local news search (Google dorks → trafilatura on first result)
+  3. ENRICH     — llama3.1:8b via Ollama:
+                    - policy stances & quotes
+                    - parliament consistency, fact-checking, etc.
+  4. SAVE       — upserts enrichment + metadata to Supabase
 
 Run:
   cd pipeline
@@ -30,9 +35,24 @@ Facebook auth (optional — gets past login walls):
   Log in manually, then Ctrl+C. Re-run scraper.py — it will pick up state.json.
 
 Env overrides:
-  ENRICH_ALL_OVERRIDE=true   re-process candidates that already have scores
-  DRY_RUN_OVERRIDE=true      print what would be written; don't touch Supabase
-  SKIP_DISCOVERY=true        skip link discovery (use social_links already in DB)
+  FULL_RESCRAPE_OVERRIDE=true    delete all Phase 1+2 data and start fresh
+  INCREMENTAL_ONLY=true          only process candidates without Phase 1 data (since last run)
+  ENRICH_ALL_OVERRIDE=true       re-process candidates that already have scores
+  DRY_RUN_OVERRIDE=true          print what would be written; don't touch Supabase
+  SKIP_DISCOVERY=true            skip link discovery (use social_links already in DB)
+
+Scrape modes:
+  Default (no flags):
+    Phase 1: Run for all candidates (idempotent — skips existing data)
+    Phase 2: Run for all candidates (enrichment only if no party_reliance_score)
+
+  INCREMENTAL_ONLY=true:
+    Phase 1: Only new candidates (where last_comprehensive_update is null)
+    Phase 2: Only enrichment for candidates without scores
+
+  FULL_RESCRAPE_OVERRIDE=true:
+    Phase 1: Delete all Phase 1+2 data first, then re-scrape everything
+    Phase 2: Re-scrape everything, fill voting records from scratch
 """
 
 import asyncio
@@ -48,6 +68,20 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright, Browser
 from supabase import create_client, Client
+
+# Phase 1: Business & Disclosures
+from scraper_business import (
+    scrape_business_registry,
+    scrape_government_gazette,
+    scrape_court_records,
+    check_parliament_roster,
+    extract_gazette_details,
+)
+
+# Phase 2: Parliamentary Voting Records
+from scraper_parliament import (
+    scrape_parliamentary_votes,
+)
 
 load_dotenv(dotenv_path=".env")
 
@@ -72,9 +106,11 @@ MALTESE_NEWS_SITES = [
     "newsbook.com.mt",
 ]
 
-SKIP_DISCOVERY = os.environ.get("SKIP_DISCOVERY",       "").lower() == "true"
-ENRICH_ALL     = os.environ.get("ENRICH_ALL_OVERRIDE",  "").lower() == "true"
-DRY_RUN        = os.environ.get("DRY_RUN_OVERRIDE",     "").lower() == "true"
+SKIP_DISCOVERY      = os.environ.get("SKIP_DISCOVERY",           "").lower() == "true"
+ENRICH_ALL          = os.environ.get("ENRICH_ALL_OVERRIDE",      "").lower() == "true"
+DRY_RUN             = os.environ.get("DRY_RUN_OVERRIDE",         "").lower() == "true"
+FULL_RESCRAPE       = os.environ.get("FULL_RESCRAPE_OVERRIDE",   "").lower() == "true"
+INCREMENTAL_ONLY    = os.environ.get("INCREMENTAL_ONLY",         "").lower() == "true"
 
 # Path to Playwright auth state — generated by: playwright codegen --save-storage=state.json
 STATE_JSON = os.path.join(os.path.dirname(__file__), "state.json")
@@ -613,6 +649,13 @@ async def fetch_wikipedia_photo(name: str, client: httpx.AsyncClient) -> str | N
 
 async def main() -> None:
     print("=== Elezzjoni.mt Candidate Enrichment Pipeline ===\n")
+    print(f"  MODE: ", end="")
+    if FULL_RESCRAPE:
+        print("FULL RESCRAPE (clear & restart)")
+    elif INCREMENTAL_ONLY:
+        print("INCREMENTAL (new candidates only)")
+    else:
+        print("DEFAULT (unenriched candidates)")
     print(f"  SKIP_DISCOVERY = {SKIP_DISCOVERY}")
     print(f"  ENRICH_ALL     = {ENRICH_ALL}")
     print(f"  DRY_RUN        = {DRY_RUN}")
@@ -623,16 +666,49 @@ async def main() -> None:
     # Start Ollama if it isn't already running
     ollama_proc = await ensure_ollama_running()
 
-    # Fetch candidates — by default only those without a score yet
+    # ── FULL_RESCRAPE: Delete all Phase 1+2 data ──────────────────────────
+    if FULL_RESCRAPE and not DRY_RUN:
+        print("  🗑️  Clearing Phase 1+2 data (business interests, disclosures, legal records, votes)…\n")
+        try:
+            supabase.table("candidate_business_interests").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            supabase.table("candidate_disclosures").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            supabase.table("candidate_legal_records").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            supabase.table("parliamentary_votes").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            supabase.table("candidates").update({
+                "is_mp": None,
+                "parliament_bio": None,
+                "current_position": None,
+                "data_completeness_pct": 0,
+                "last_comprehensive_update": None,
+            }).neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            print("  ✓ Cleared\n")
+        except Exception as e:
+            print(f"  ⚠ Failed to clear data: {e}\n")
+
+    # Fetch candidates
     q = supabase.table("candidates").select(
-        "id, full_name, photo_url, social_links, party_reliance_score"
+        "id, full_name, photo_url, social_links, party_reliance_score, last_comprehensive_update"
     )
-    if not ENRICH_ALL:
+
+    if FULL_RESCRAPE or ENRICH_ALL:
+        # Rescrape everyone
+        pass
+    elif INCREMENTAL_ONLY:
+        # Only get candidates without Phase 1 data (null last_comprehensive_update)
+        q = q.is_("last_comprehensive_update", "null")
+    else:
+        # Default: only get candidates without enrichment (null party_reliance_score)
         q = q.is_("party_reliance_score", "null")
+
     rows = q.execute().data
 
     if not rows:
-        print("Nothing to process. Set ENRICH_ALL_OVERRIDE=true to reprocess everyone.")
+        if FULL_RESCRAPE:
+            print("Nothing to process.")
+        elif INCREMENTAL_ONLY:
+            print("No new candidates since last Phase 1 run. Set ENRICH_ALL_OVERRIDE=true to reprocess.")
+        else:
+            print("No unenriched candidates. Set ENRICH_ALL_OVERRIDE=true to reprocess.")
         return
 
     print(f"Processing {len(rows)} candidates…\n")
@@ -653,6 +729,49 @@ async def main() -> None:
                 print(f"── {name}")
 
                 async with httpx.AsyncClient(headers={"User-Agent": UA}) as http:
+
+                    # ── PHASE 1: Business Interests & Disclosures ─────────
+                    phase1_data = {}
+
+                    # Check parliament roster
+                    print(f"   🏛️  checking parliament roster…")
+                    parliament_info = await check_parliament_roster(name, http)
+                    if parliament_info:
+                        phase1_data["is_mp"] = parliament_info["is_mp"]
+                        phase1_data["parliament_bio"] = parliament_info["parliament_bio"]
+                        phase1_data["current_position"] = parliament_info["current_position"]
+                        print(f"   ✓  {parliament_info['current_position']}")
+
+                    # Scrape business registry
+                    print(f"   💼 scraping business registry…")
+                    business_interests = await scrape_business_registry(name, http)
+                    if business_interests:
+                        print(f"   ✓  {len(business_interests)} director role(s)")
+
+                    # Scrape government gazette
+                    print(f"   📋 searching government gazette…")
+                    disclosures = await scrape_government_gazette(name, http)
+                    if disclosures:
+                        print(f"   ✓  {len(disclosures)} disclosure(s)")
+                        # Extract details from each disclosure
+                        for disclosure in disclosures:
+                            if disclosure.get("source_url"):
+                                details = await extract_gazette_details(
+                                    disclosure["source_url"], name, http
+                                )
+                                if details:
+                                    # Store full details in raw_json, update only schema fields
+                                    disclosure["raw_json"] = details
+                                    if details.get("disclosed_amount"):
+                                        disclosure["disclosed_amount"] = details["disclosed_amount"]
+                                    if details.get("currency"):
+                                        disclosure["currency"] = details["currency"]
+
+                    # Scrape court records (fallback to news)
+                    print(f"   ⚖️  searching court records…")
+                    court_records = await scrape_court_records(name, http)
+                    if court_records:
+                        print(f"   ✓  {len(court_records)} record(s)")
 
                     # ── Stage 1: Discover links ───────────────────────────
                     if not SKIP_DISCOVERY and not fb_url:
@@ -756,6 +875,66 @@ async def main() -> None:
                         print(f"   –  no content scraped (no links found or all sources blocked)")
 
                     # ── Stage 4: Save to Supabase ─────────────────────────
+
+                    # PHASE 1: Save business interests, disclosures, court records
+                    if not DRY_RUN:
+                        # Update candidates table with Phase 1 data
+                        phase1_update = {}
+                        if phase1_data:
+                            phase1_update.update(phase1_data)
+
+                        # Calculate data completeness (simple heuristic)
+                        data_completeness = 10  # base for having basic profile
+                        if parliament_info:
+                            data_completeness += 20
+                        if business_interests:
+                            data_completeness += 15
+                        if disclosures:
+                            data_completeness += 15
+                        if court_records:
+                            data_completeness += 10
+                        phase1_update["data_completeness_pct"] = min(data_completeness, 100)
+                        phase1_update["last_comprehensive_update"] = datetime.now(timezone.utc).isoformat()
+
+                        if phase1_update:
+                            supabase.table("candidates").update(phase1_update).eq("id", c["id"]).execute()
+
+                        # Insert business interests
+                        for bi in business_interests:
+                            try:
+                                supabase.table("candidate_business_interests").insert({
+                                    "candidate_id": c["id"],
+                                    **bi,
+                                    "last_updated": datetime.now(timezone.utc).isoformat(),
+                                }).execute()
+                            except Exception as e:
+                                print(f"    ⚠ Failed to insert business interest: {e}")
+
+                        # Insert disclosures
+                        for disc in disclosures:
+                            try:
+                                supabase.table("candidate_disclosures").insert({
+                                    "candidate_id": c["id"],
+                                    **disc,
+                                    "created_at": datetime.now(timezone.utc).isoformat(),
+                                    "last_updated": datetime.now(timezone.utc).isoformat(),
+                                }).execute()
+                            except Exception as e:
+                                print(f"    ⚠ Failed to insert disclosure: {e}")
+
+                        # Insert court records
+                        for cr in court_records:
+                            try:
+                                supabase.table("candidate_legal_records").insert({
+                                    "candidate_id": c["id"],
+                                    **cr,
+                                    "created_at": datetime.now(timezone.utc).isoformat(),
+                                    "last_updated": datetime.now(timezone.utc).isoformat(),
+                                }).execute()
+                            except Exception as e:
+                                print(f"    ⚠ Failed to insert legal record: {e}")
+
+                    # Phase 2+: Save enrichment data
                     update: dict = {}
 
                     if enrichment:
@@ -783,6 +962,65 @@ async def main() -> None:
 
         await asyncio.gather(*[process(c) for c in rows])
         await browser.close()
+
+    # ── PHASE 2: Parliamentary Voting Records ──────────────────────────────
+    print("\n=== Phase 2: Parliamentary Voting Records ===\n")
+
+    try:
+        # Get list of candidate names for vote matching
+        candidate_names = [r["full_name"] for r in rows]
+
+        # Scrape parliamentary votes from PDFs
+        parliamentary_results = await scrape_parliamentary_votes(
+            candidate_names,
+            limit_sessions=None,  # Set to e.g. 2 for testing
+            ollama_url=OLLAMA_URL,
+            ollama_model=OLLAMA_MODEL,
+        )
+
+        print(f"\n  Found {sum(len(r['votes_found']) for r in parliamentary_results)} total votes\n")
+
+        # Save voting records to database
+        if not DRY_RUN:
+            for session_result in parliamentary_results:
+                for vote_record in session_result.get("votes_found", []):
+                    # Extract session date from session name (heuristic)
+                    session_name = session_result["session_name"]
+
+                    # For each vote, we need to match it to individual candidates
+                    # The vote record has: vote_type, bill_name, votes (dict of name→choice)
+                    votes_dict = vote_record.get("votes", {})
+
+                    for mp_name, vote_choice in votes_dict.items():
+                        # Try to match the MP name to a candidate
+                        matched_candidate = None
+                        for cand in rows:
+                            if cand["full_name"].lower() == mp_name.lower():
+                                matched_candidate = cand
+                                break
+
+                        if not matched_candidate:
+                            continue  # Skip if no match found
+
+                        try:
+                            supabase.table("parliamentary_votes").insert({
+                                "candidate_id": matched_candidate["id"],
+                                "session_name": session_name,
+                                "session_url": session_result["session_url"],
+                                "session_date": None,  # Could parse from session_name
+                                "bill_name": vote_record.get("bill_name"),
+                                "vote_type": vote_record.get("vote_type"),
+                                "vote_choice": vote_choice,
+                                "raw_text_excerpt": vote_record.get("raw_text_excerpt"),
+                                "llm_confidence": vote_record.get("confidence", 0.0),
+                            }).execute()
+                        except Exception as e:
+                            print(f"    ⚠ Failed to insert vote for {mp_name}: {e}")
+        else:
+            print("  [DRY RUN] would insert parliamentary voting records")
+
+    except Exception as e:
+        print(f"  ⚠ Parliamentary voting scraper failed: {e}")
 
     # Stop Ollama if we were the ones who started it
     if ollama_proc is not None:
