@@ -40,6 +40,7 @@ import json
 import os
 import re
 import subprocess
+from datetime import datetime, timezone
 
 import httpx
 import trafilatura
@@ -60,6 +61,17 @@ OLLAMA_MODEL = "llama3.1:8b"
 WIKIPEDIA_API  = "https://en.wikipedia.org/w/api.php"
 DDG_SEARCH_URL = "https://html.duckduckgo.com/html/"
 
+# Minimum words from any single source before we consider it usable
+MIN_WORDS = 100
+
+# Maltese news sites targeted in the news search Google dork
+MALTESE_NEWS_SITES = [
+    "timesofmalta.com",
+    "maltatoday.com.mt",
+    "independent.com.mt",
+    "newsbook.com.mt",
+]
+
 SKIP_DISCOVERY = os.environ.get("SKIP_DISCOVERY",       "").lower() == "true"
 ENRICH_ALL     = os.environ.get("ENRICH_ALL_OVERRIDE",  "").lower() == "true"
 DRY_RUN        = os.environ.get("DRY_RUN_OVERRIDE",     "").lower() == "true"
@@ -73,15 +85,51 @@ UA = (
     "Chrome/124.0.0.0 Safari/537.36"
 )
 
+# ── Text validation ───────────────────────────────────────────────────────────
+
+# Phrases that indicate a login wall or generic boilerplate rather than real content
+_BOILERPLATE_SIGNALS = [
+    "log in to facebook", "log into facebook", "create new account",
+    "forgotten password", "forgot password", "sign up for facebook",
+    "facebook login", "you must log in", "allow all cookies",
+    "see more on facebook", "connect with friends", "see photos and videos",
+    "to see more from", "sign in to continue", "join facebook",
+    "cookie policy", "privacy policy", "terms of service",
+]
+
+
+def is_valid_political_text(text: str) -> bool:
+    """
+    Returns False if the text is dominated by login-wall / cookie-banner
+    boilerplate rather than real candidate content.
+    Checks both hard phrase matches and a boilerplate-density heuristic.
+    """
+    if not text or len(text.split()) < 30:
+        return False
+
+    lower = text.lower()
+
+    # Hard reject: any login-wall phrase present
+    if any(sig in lower for sig in _BOILERPLATE_SIGNALS):
+        return False
+
+    return True
+
+
 SYSTEM_PROMPT = (
-    "You are an expert political analyst. Analyze the provided scraped text of a Maltese "
-    "local council candidate. Your primary task is to calculate a 'party_reliance_score' "
-    "from 0-100. Look for pronouns ('I' vs 'We'), references to the party leader, and "
-    "mentions of party manifestos. A score of 100 means they only talk about the party. "
-    "A score of 0 means they only talk about their own personal local vision. Extract their "
-    "policy stances and key quotes. "
+    "You are analyzing text about a Maltese local council candidate. "
+    "The text may be a first-person social media post OR a third-person news article. "
+    "Extract their policy stances and quotes. "
+    "Calculate an 'Independence Score' (party_reliance_score) from 0-100 where 100 means "
+    "they heavily promote their political party, and 0 means they promote their own "
+    "independent personal brand and local vision. "
+    "Look for pronouns ('I' vs 'We'), references to the party leader, and mentions of "
+    "party manifestos to inform the score. "
+    "If the text is purely biographical or academic with absolutely no political or policy "
+    "content, output a score of -1. "
     "Return ONLY a valid JSON object with exactly these keys: "
-    "party_reliance_score (integer 0-100), score_justification (string, 1-2 sentences), "
+    "party_reliance_score (integer 0-100, or -1 if no political content), "
+    "score_justification (string, 1-2 sentences), "
     "personal_stances (array of up to 4 strings, third person, max 25 words each), "
     "key_quotes (array of up to 3 direct quote strings). No markdown, no extra text."
 )
@@ -310,14 +358,8 @@ async def scrape_facebook(url: str, browser: Browser) -> str:
 
         combined = "\n\n".join(dict.fromkeys(texts))
 
-        # Discard if we still hit a login wall
-        login_signals = [
-            "log in to facebook", "create new account", "forgotten password",
-            "sign up for facebook", "facebook login", "you must log in",
-            "log into facebook",
-        ]
-        if any(sig in combined.lower() for sig in login_signals):
-            print(f"   ⚠ Facebook login wall — run: playwright codegen --save-storage=state.json https://www.facebook.com")
+        if not is_valid_political_text(combined):
+            print(f"   ⚠ Facebook login wall / boilerplate — run: playwright codegen --save-storage=state.json https://www.facebook.com")
             return ""
 
         return combined[:8000]
@@ -367,11 +409,13 @@ async def scrape_website(url: str, client: httpx.AsyncClient) -> tuple[str, str 
 
 async def scrape_news(name: str, client: httpx.AsyncClient) -> tuple[str, str | None]:
     """
-    Searches DuckDuckGo for "{name} Malta", fetches the first Maltese news
-    article with trafilatura, and also returns its og:image as a photo candidate.
+    Uses a Google dork targeting top Maltese journalism sites to find articles
+    about the candidate, then extracts text + og:image via trafilatura.
     Returns (text, og_image_url).
     """
-    query = f'"{name}" Malta'
+    site_filter = " OR ".join(f"site:{s}" for s in MALTESE_NEWS_SITES)
+    query = f'"{name}" ({site_filter})'
+
     try:
         resp = await client.post(
             DDG_SEARCH_URL,
@@ -382,14 +426,13 @@ async def scrape_news(name: str, client: httpx.AsyncClient) -> tuple[str, str | 
         )
         soup = BeautifulSoup(resp.text, "html.parser")
 
+        # Collect URLs that belong to one of our target news sites
         result_urls: list[str] = []
         for a in soup.select("a.result__a"):
             href = a.get("href", "")
-            if href.startswith("http") and not any(
-                skip in href for skip in ["facebook.com", "wikipedia.org", "pn.org.mt", "pl.org.mt"]
-            ):
+            if href.startswith("http") and any(site in href for site in MALTESE_NEWS_SITES):
                 result_urls.append(href)
-            if len(result_urls) >= 5:
+            if len(result_urls) >= 3:
                 break
 
         for article_url in result_urls:
@@ -402,7 +445,7 @@ async def scrape_news(name: str, client: httpx.AsyncClient) -> tuple[str, str | 
                     include_tables=False,
                     no_fallback=False,
                 )
-                if text and len(text.split()) > 80:
+                if text and len(text.split()) >= MIN_WORDS:
                     print(f"   📰 {article_url}")
                     photo = _og_image(article_resp.text)
                     return text[:5000], photo
@@ -460,12 +503,45 @@ async def enrich(name: str, text: str, source_label: str) -> dict:
         data = json.loads(raw)
         data["personal_stances"]     = data.get("personal_stances", [])[:4]
         data["key_quotes"]           = data.get("key_quotes",       [])[:3]
-        data["party_reliance_score"] = int(data.get("party_reliance_score", 50))
+        score = int(data.get("party_reliance_score", 50))
+        data["party_reliance_score"] = score
+        # -1 means "no political content" — treat as no enrichment
+        if score == -1:
+            return {}
         return data
 
     except Exception as e:
         print(f"    ⚠ LLM error for '{name}': {e}")
         return {}
+
+
+# ── Translation ───────────────────────────────────────────────────────────────
+
+async def translate_to_maltese(texts: list[str]) -> list[str]:
+    """
+    Translates a list of English strings to Maltese using the MyMemory free
+    REST API (no key needed, 1000 req/day free tier).
+    Falls back to the original English string on any error.
+    """
+    results: list[str] = []
+    async with httpx.AsyncClient() as client:
+        for text in texts:
+            if not text or not text.strip():
+                results.append(text)
+                continue
+            try:
+                resp = await client.get(
+                    "https://api.mymemory.translated.net/get",
+                    params={"q": text, "langpair": "en|mt"},
+                    timeout=10,
+                )
+                data = resp.json()
+                translated = data.get("responseData", {}).get("translatedText", "")
+                # MyMemory returns the original text when it can't translate
+                results.append(translated if translated else text)
+            except Exception:
+                results.append(text)   # fall back to English silently
+    return results
 
 
 # ── Photo: Facebook Graph API ─────────────────────────────────────────────────
@@ -609,7 +685,7 @@ async def main() -> None:
                     scraped_photo: str | None = None   # og:image collected during scraping
 
                     # 2b: Personal website (trafilatura)
-                    if web_url and len(all_text) < 500:
+                    if web_url and len(all_text.split()) < MIN_WORDS:
                         print(f"   📄 scraping website…")
                         web_text, web_photo = await scrape_website(web_url, http)
                         if web_text:
@@ -620,7 +696,7 @@ async def main() -> None:
                             scraped_photo = web_photo
 
                     # 2c: Local news search fallback
-                    if len(all_text) < 300:
+                    if len(all_text.split()) < MIN_WORDS:
                         print(f"   🔎 searching local news…")
                         news_text, news_photo = await scrape_news(name, http)
                         if news_text:
@@ -660,6 +736,20 @@ async def main() -> None:
                             n_stances = len(enrichment["personal_stances"])
                             n_quotes  = len(enrichment.get("key_quotes", []))
                             print(f"   ✓  score={score} · {n_stances} stances · {n_quotes} quotes")
+
+                            # Translate to Maltese
+                            print(f"   🇲🇹 translating to Maltese…")
+                            all_en = (
+                                enrichment["personal_stances"] +
+                                enrichment.get("key_quotes", []) +
+                                [enrichment.get("score_justification", "")]
+                            )
+                            all_mt = await translate_to_maltese(all_en)
+                            n_stances = len(enrichment["personal_stances"])
+                            n_quotes  = len(enrichment.get("key_quotes", []))
+                            enrichment["personal_stances_mt"]    = all_mt[:n_stances]
+                            enrichment["key_quotes_mt"]          = all_mt[n_stances:n_stances + n_quotes]
+                            enrichment["score_justification_mt"] = all_mt[-1]
                         else:
                             print(f"   –  no policy content found in scraped text")
                     else:
@@ -669,16 +759,18 @@ async def main() -> None:
                     update: dict = {}
 
                     if enrichment:
-                        update["party_reliance_score"] = enrichment.get("party_reliance_score")
-                        update["score_justification"]  = enrichment.get("score_justification")
-                        update["personal_stances"]     = enrichment.get("personal_stances", [])
-                        update["key_quotes"]           = enrichment.get("key_quotes", [])
+                        update["party_reliance_score"]    = enrichment.get("party_reliance_score")
+                        update["score_justification"]     = enrichment.get("score_justification")
+                        update["personal_stances"]        = enrichment.get("personal_stances", [])
+                        update["key_quotes"]              = enrichment.get("key_quotes", [])
+                        update["score_justification_mt"]  = enrichment.get("score_justification_mt")
+                        update["personal_stances_mt"]     = enrichment.get("personal_stances_mt", [])
+                        update["key_quotes_mt"]           = enrichment.get("key_quotes_mt", [])
 
                     if photo_url:
                         update["photo_url"] = photo_url
 
                     if update:
-                        from datetime import datetime, timezone
                         update["last_updated"] = datetime.now(timezone.utc).isoformat()
                         if DRY_RUN:
                             print(f"   [DRY RUN] would write: {list(update.keys())}")
