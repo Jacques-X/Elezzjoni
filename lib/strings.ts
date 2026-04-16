@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * strings.ts — Central copy file for Elezzjoni.mt
+ * strings.ts — Central copy file for Kandidati.mt
  * Edit any UI text here. Changes apply site-wide.
  * ============================================================
  */
@@ -9,13 +9,13 @@ export const s = {
 
   // ── Site ────────────────────────────────────────────────
   site: {
-    name: 'elezzjoni.mt',
-    title: "Elezzjoni.mt — Portal Elettorali ta' Malta",
+    name: 'kandidati.mt',
+    title: "Kandidati.mt — Portal Elettorali ta' Malta",
     description:
       "Sib, irriċerka, u qabbel il-kandidati elettorali fid-distrett tiegħek.",
     tagline: 'Teknoloġija ċivika newtrali politikament għall-votanti Maltin.',
     copyright: (year: number) =>
-      `© ${year} Elezzjoni.mt · Teknoloġija ċivika open source · Mhux affiljata ma' ebda partit politiku`,
+      `© ${year} Kandidati.mt · Teknoloġija ċivika open source · Mhux affiljata ma' ebda partit politiku`,
   },
 
   // ── Navigation ──────────────────────────────────────────
@@ -70,7 +70,7 @@ export const s = {
   districts: {
     noResultsFiltered: 'Ma nstab l-ebda kandidat għall-filtru magħżul.',
     noResultsDistrict: "Ma nstab l-ebda kandidat f'dan id-distrett.",
-    metaTitle:   'Distretti — Elezzjoni.mt',
+    metaTitle:   'Distretti — Kandidati.mt',
     metaDesc:    "Esplora t-13-il distrett elettorali f'Malta u sib il-kandidati f'żontek.",
     heading:     'Distretti Elettorali',
     subheading:  'Malta hija maqsuma fi 13-il distrett elettorali. Agħżel distrett biex tara l-kandidati kollha.',
@@ -83,7 +83,7 @@ export const s = {
 
   // ── Parties ──────────────────────────────────────────────
   parties: {
-    metaTitle:  'Partiti — Elezzjoni.mt',
+    metaTitle:  'Partiti — Kandidati.mt',
     metaDesc:   "Esplora l-partiti politiċi kollha li jikkontestaw l-elezzjonijiet f'Malta.",
     heading:    'Partiti Politiċi',
     subheading: 'Il-partiti kollha li jikkontestaw l-elezzjoni. Agħżel partit biex tara l-kandidati tagħhom.',
@@ -95,7 +95,7 @@ export const s = {
 
   // ── Candidates ───────────────────────────────────────────
   candidates: {
-    metaTitle:    'Kandidati — Elezzjoni.mt',
+    metaTitle:    'Kandidati — Kandidati.mt',
     metaDesc:     'Esplora d-direttorju sħiħ tal-kandidati li qed jiġġieldu fit-13-il distrett elettorali Malti.',
     heading:      'Il-Kandidati Kollha',
     found:        (n: number) => `${n} kandidat${n !== 1 ? 'i' : ''} misjub${n !== 1 ? 'a' : ''}`,
@@ -156,7 +156,7 @@ export const s = {
   // ── Compare ──────────────────────────────────────────────
   compare: {
     heading:   'Qabbel il-Kandidati',
-    metaTitle: 'Qabbel — Elezzjoni.mt',
+    metaTitle: 'Qabbel — Kandidati.mt',
     vs:        'vs',
     party:     'Partit',
     districts: 'Distretti',
@@ -172,7 +172,7 @@ export const s = {
 
   // ── STV Explainer ────────────────────────────────────────
   stv: {
-    metaTitle:  'Kif taħdem is-STV — Elezzjoni.mt',
+    metaTitle:  'Kif taħdem is-STV — Kandidati.mt',
     heading:    'Kif taħdem is-STV?',
     subheading: "Is-Single Transferable Vote hija s-sistema elettorali użata f'Malta mill-1921. Tippermetti li l-vot tiegħek jittrasferi biex ma jintilifx.",
     next:       'Avvanza →',

@@ -1,7 +1,7 @@
-# Elezzjoni.mt: Comprehensive Candidate Data & Analysis Spec
+# Kandidati.mt: Comprehensive Candidate Data & Analysis Spec
 
 ## Vision
-Transform Elezzjoni.mt from a basic candidate directory into a **rigorous, multi-source verification platform** that gives Maltese voters:
+Transform Kandidati.mt from a basic candidate directory into a **rigorous, multi-source verification platform** that gives Maltese voters:
 - Complete candidate profiles (education, work history, finances, declarations)
 - Full parliamentary track record (votes, speeches, bills authored, amendments)
 - Policy consistency analysis (claims vs. votes; party alignment vs. independence)

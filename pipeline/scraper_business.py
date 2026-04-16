@@ -77,7 +77,7 @@ async def scrape_business_registry(
                 "https://www.google.com/search",
                 params={"q": dork_query},
                 timeout=15,
-                headers={"User-Agent": "Mozilla/5.0 (compatible; Elezzjoni/1.0)"},
+                headers={"User-Agent": "Mozilla/5.0 (compatible; Kandidati/1.0)"},
             )
             soup = BeautifulSoup(search_resp.text, "html.parser")
 

@@ -457,7 +457,7 @@ async def scrape_parliamentary_votes(
     results: list[dict] = []
 
     async with httpx.AsyncClient(headers={
-        "User-Agent": "Mozilla/5.0 (compatible; Elezzjoni/1.0)"
+        "User-Agent": "Mozilla/5.0 (compatible; Kandidati/1.0)"
     }) as client:
 
         print("  Fetching parliament plenary session index…\n")

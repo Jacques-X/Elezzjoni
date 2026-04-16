@@ -2,7 +2,7 @@ export interface BallotEntry {
   id: string
 }
 
-const KEY = 'elezzjoni_ballot_v1'
+const KEY = 'kandidati_ballot_v1'
 
 export function getBallot(): BallotEntry[] {
   if (typeof window === 'undefined') return []
@@ -52,7 +52,7 @@ export function clearBallot(): void {
 }
 
 // Compare pick — sessionStorage so it clears on tab close
-const COMPARE_KEY = 'elezzjoni_compare_pick'
+const COMPARE_KEY = 'kandidati_compare_pick'
 
 export function getComparePick(): string | null {
   if (typeof window === 'undefined') return null

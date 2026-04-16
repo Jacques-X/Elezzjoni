@@ -417,7 +417,7 @@ async def scrape_party_intelligence(
     ]
 
     async with httpx.AsyncClient(headers={
-        "User-Agent": "Mozilla/5.0 (compatible; Elezzjoni/1.0)"
+        "User-Agent": "Mozilla/5.0 (compatible; Kandidati/1.0)"
     }) as client:
 
         print(f"  Scraping {len(parties_to_scrape)} party(ies)…\n")

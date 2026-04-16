@@ -1,5 +1,5 @@
 """
-Elezzjoni.mt — Comprehensive Candidate Enrichment Pipeline
+Kandidati.mt — Comprehensive Candidate Enrichment Pipeline
 ===========================================================
 
 Phase 1: Business Interests & Disclosures (Foundation)
@@ -276,7 +276,7 @@ FACEBOOK_OVERRIDES: dict[str, str] = {
     "Ryan Callus":               "https://www.facebook.com/RyanCallusPN",
 }
 
-WIKIDATA_HEADERS = {"User-Agent": "ElezzjoniMT/1.0 (jacxuereb@gmail.com)", "Accept": "application/json"}
+WIKIDATA_HEADERS = {"User-Agent": "KandidatiMT/1.0 (jacxuereb@gmail.com)", "Accept": "application/json"}
 
 
 # ── Stage 1: Discover social links ───────────────────────────────────────────
@@ -655,7 +655,7 @@ async def fetch_wikipedia_photo(name: str, client: httpx.AsyncClient) -> str | N
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 async def main() -> None:
-    print("=== Elezzjoni.mt Candidate Enrichment Pipeline ===\n")
+    print("=== Kandidati.mt Candidate Enrichment Pipeline ===\n")
     print(f"  MODE: ", end="")
     if FULL_RESCRAPE:
         print("FULL RESCRAPE (clear & restart)")

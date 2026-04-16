@@ -23,8 +23,8 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className="text-xl font-bold tracking-tight">
-              elezzjoni
-              <span className="text-[#003DA5]">.</span> 
+              kandidati
+              <span className="text-[#003DA5]">.</span>
               <span className="text-[#CF0A2C]">mt</span>
             </span>
           </Link>

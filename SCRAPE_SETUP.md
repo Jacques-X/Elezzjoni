@@ -1,4 +1,4 @@
-# Elezzjoni.mt Scraper — Setup for Tonight
+# Kandidati.mt Scraper — Setup for Tonight
 
 Complete build of Phase 1 (Business Interests) + Phase 2 (Parliamentary Voting) ready to run.
 
