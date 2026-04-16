@@ -12,7 +12,7 @@ export const s = {
     name: 'elezzjoni.mt',
     title: "Elezzjoni.mt — Portal Elettorali ta' Malta",
     description:
-      "Sib, irriċerka, u qabbel il-kandidati elettorali fid-distrett tiegħek. Teknoloġija ċivika newtrali politikament għall-votanti Maltin.",
+      "Sib, irriċerka, u qabbel il-kandidati elettorali fid-distrett tiegħek.",
     tagline: 'Teknoloġija ċivika newtrali politikament għall-votanti Maltin.',
     copyright: (year: number) =>
       `© ${year} Elezzjoni.mt · Teknoloġija ċivika open source · Mhux affiljata ma' ebda partit politiku`,
@@ -24,7 +24,7 @@ export const s = {
     districts:  'Distretti',
     parties:    'Partiti',
     candidates: 'Kandidati',
-    ballot:     'Polza Tiegħi',
+    ballot:     'Il-Polza Tiegħi',
     stv:        'Kif taħdem is-STV',
     compare:    'Qabbel',
   },
@@ -141,9 +141,9 @@ export const s = {
 
   // ── Ballot (My Ballot) ───────────────────────────────────
   ballot: {
-    heading:     'Il- Tiegħi',
+    heading:     'Il-Polza Tiegħi',
     subheading:  'Arranġa l-kandidati magħżulin skont il-preferenza tiegħek.',
-    empty:       "Ma ġiex magħżel l-ebda kandidat s'issa.",
+    empty:       "M'hemmx kandidat magħżul",
     browseCta:   'Esplora l-kandidati',
     clear:       'Ħassar kollox',
     privacyNote: 'Il-polza tinħażen biss fuq il-browser tiegħek. L-ebda dejta ma tiġi mibgħuta.',
@@ -197,9 +197,9 @@ export const s = {
     tapDistrict: 'Agħfas distrett biex tara l-kandidati',
   },
 
-  // ── Ballot Preview ───────────────────────────────────────
+  // ── Polza Preview ───────────────────────────────────────
   ballotPreview: {
-    triggerBtn:  'Ara l-Format tal-Ballotta',
+    triggerBtn:  'Ara l-Format tal-Polza',
     heading:     'Polza Elettorali',
     instruction: 'Agħti l-ewwel preferenza tiegħek billi tikteb in-numru 1 fil-kaxxa tal-kandidat tiegħek. Kompli bin-numri 2, 3, eċċ.',
     official:    'Użu Uffiċjali Biss',
