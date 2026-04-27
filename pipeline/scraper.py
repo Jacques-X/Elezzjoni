@@ -90,6 +90,18 @@ from scraper_parties import (
     scrape_party_intelligence,
 )
 
+# Phase 5: Parliamentary Questions & Committee Memberships
+from scraper_pqs import (
+    scrape_parliamentary_questions,
+    scrape_committee_memberships,
+    match_committee_memberships,
+)
+
+# Phase 6: Electoral History
+from scraper_electoral_history import (
+    scrape_electoral_history,
+)
+
 load_dotenv(dotenv_path=".env")
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -111,6 +123,7 @@ MALTESE_NEWS_SITES = [
     "maltatoday.com.mt",
     "independent.com.mt",
     "newsbook.com.mt",
+    "lovinmalta.com",
 ]
 
 SKIP_DISCOVERY      = os.environ.get("SKIP_DISCOVERY",           "").lower() == "true"
@@ -965,6 +978,36 @@ async def main() -> None:
                         else:
                             supabase.table("candidates").update(update).eq("id", c["id"]).execute()
 
+                    # ── Phase 5: Parliamentary Questions (MPs only) ────────
+                    is_mp = phase1_data.get("is_mp") or c.get("is_mp")
+                    if is_mp:
+                        print(f"   📜 scraping parliamentary questions…")
+                        pqs = await scrape_parliamentary_questions(name, c["id"], http)
+                        if pqs and not DRY_RUN:
+                            for pq in pqs:
+                                try:
+                                    supabase.table("candidate_parliamentary_questions").upsert(
+                                        pq, on_conflict="candidate_id,question_number"
+                                    ).execute()
+                                except Exception as e:
+                                    print(f"    ⚠ Failed to insert PQ: {e}")
+                        elif DRY_RUN and pqs:
+                            print(f"   [DRY RUN] would insert {len(pqs)} parliamentary questions")
+
+                    # ── Phase 6: Electoral History ─────────────────────────
+                    print(f"   🗳  scraping electoral history…")
+                    electoral_records = await scrape_electoral_history(name, c["id"], http)
+                    if electoral_records and not DRY_RUN:
+                        for er in electoral_records:
+                            try:
+                                supabase.table("candidate_electoral_history").upsert(
+                                    er, on_conflict="candidate_id,election_year,election_type"
+                                ).execute()
+                            except Exception as e:
+                                print(f"    ⚠ Failed to insert electoral record: {e}")
+                    elif DRY_RUN and electoral_records:
+                        print(f"   [DRY RUN] would insert {len(electoral_records)} electoral records")
+
                 print()
 
         await asyncio.gather(*[process(c) for c in rows])
@@ -1128,6 +1171,34 @@ async def main() -> None:
 
     except Exception as e:
         print(f"  ⚠ Party intelligence scraper failed: {e}")
+
+    # ── PHASE 5b: Committee Memberships (once per run) ─────────────────────────
+    print("\n=== Phase 5b: Committee Memberships ===\n")
+    try:
+        async with httpx.AsyncClient(headers={"User-Agent": UA}) as http:
+            memberships = await scrape_committee_memberships(http)
+
+        if memberships:
+            print(f"  Found committee data for {len(memberships)} members")
+            # Fetch all candidates to do name matching
+            all_candidates = supabase.table("candidates").select("id, full_name").execute().data or []
+            if not DRY_RUN:
+                for cand in all_candidates:
+                    committees = match_committee_memberships(memberships, cand["full_name"])
+                    if committees:
+                        supabase.table("candidates").update(
+                            {"committee_memberships": committees}
+                        ).eq("id", cand["id"]).execute()
+                        print(f"   ✓  {cand['full_name']}: {', '.join(committees)}")
+            else:
+                for cand in all_candidates:
+                    committees = match_committee_memberships(memberships, cand["full_name"])
+                    if committees:
+                        print(f"   [DRY RUN] {cand['full_name']}: {committees}")
+        else:
+            print("  No committee data found (parlament.mt structure may have changed)")
+    except Exception as e:
+        print(f"  ⚠ Committee memberships scraper failed: {e}")
 
     # Stop Ollama if we were the ones who started it
     if ollama_proc is not None:

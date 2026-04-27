@@ -107,17 +107,73 @@ export const s = {
   // ── Candidate profile ────────────────────────────────────
   candidateProfile: {
     incumbent:       'Membru Attwali',
+    mpLabel:         'Deputat tal-Parlament',
     districtLabel:   (n: number) => `Distrett ${n}`,
-    stancesTitle:    'Pożizzjonijiet Ewlenin',
-    stancesBadge:    'Sommarju AI',
-    stancesNote:     "Sommarju ġġenerat mill-AI abbażi ta' dikjarazzjonijiet disponibbli pubblikament. Ivverifika b'mod indipendenti.",
-    quotesTitle:     'Kwotazzjonijiet Ewlenin',
-    quotesBadge:     'Estratt minn AI',
-    quotesNote:      'Estratt minn diskorsi pubbliċi, intervisti, u materjali tal-partit.',
     lastUpdated:     (date: string) => `Aġġornat l-aħħar: ${date}`,
+
+    // Social links
     socialFacebook:  'Facebook',
     socialInstagram: 'Instagram',
     socialWebsite:   'Website',
+
+    // Parliamentary record
+    parliamentaryRecordTitle: 'Rekord Parlamentari',
+    totalVotes:               'Voti Totali',
+    votesYes:                 'Iva',
+    votesNo:                  'Le',
+    votesAbstain:             'Astensjoni',
+    recentVotesTitle:         'Voti Reċenti',
+
+    // Independence score
+    independenceTitle: 'Indipendenza mill-Partit',
+    scoreAiBadge:      'Minn AI',
+    independent:       'Indipendenti',
+    partyLoyal:        "Leali lejn il-Partit",
+    scoreNote:         "Skors ibbażat fuq il-lingwaġġ tas-social media u dikjarazzjonijiet pubbliċi. Mhux imperjetat politikament.",
+
+    // Parliamentary questions
+    pqTitle:        'Mistoqsijiet Parlamentari',
+    pqTotal:        (n: number) => `${n} mistoqsija${n !== 1 ? 't' : ''} imressqa`,
+    pqTopMinisters: 'Ministri l-aktar mistoqsija',
+    pqOral:         'Orali',
+    pqWritten:      'Bil-Miktub',
+
+    // Committee memberships
+    committeesTitle: 'Kumitati Parlamentari',
+
+    // Key positions
+    stancesTitle: 'Pożizzjonijiet Ewlenin',
+    stancesBadge: 'Sommarju AI',
+    stancesNote:  "Sommarju ġġenerat mill-AI abbażi ta' dikjarazzjonijiet disponibbli pubblikament. Ivverifika b'mod indipendenti.",
+
+    // Quotes
+    quotesTitle: 'Kwotazzjonijiet Ewlenin',
+    quotesBadge: 'Estratt minn AI',
+    quotesNote:  'Estratt minn diskorsi pubbliċi, intervisti, u materjali tal-partit.',
+
+    // Business interests
+    businessTitle:   'Interessi Kummerċjali',
+    businessCompany: 'Kumpanija',
+    businessRole:    'Rwol',
+    businessStatus:  'Status',
+    businessSource:  "Sors: Reġistru tal-Kumpaniji ta' Malta (rekords pubbliċi)",
+
+    // Financial disclosures
+    disclosuresTitle: 'Dikjarazzjonijiet ta\' Assi',
+    sourceLink:       'Ara s-sors',
+
+    // Legal records
+    legalTitle:    'Rekords Legali',
+    legalCaseType: 'Każ',
+
+    // Electoral history
+    electoralHistoryTitle: 'Storja Elettorali',
+    electoralYear:         'Sena',
+    electoralDistrict:     'Distrett',
+    electoralFirstPref:    'Voti 1ġ Pref.',
+    electoralResult:       'Riżultat',
+    electoralElected:      'Elett',
+    electoralNotElected:   'Mhux Elett',
   },
 
   // ── Search ───────────────────────────────────────────────
