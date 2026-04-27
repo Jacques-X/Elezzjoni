@@ -25,6 +25,7 @@ import httpx
 import pdfplumber
 from bs4 import BeautifulSoup
 import trafilatura
+from llm import chat as llm_chat, parse_json as llm_parse_json
 
 # ── Rate limiting ──────────────────────────────────────────────────────────────
 
@@ -225,41 +226,16 @@ MANIFESTO TEXT:
 """
 
     try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{ollama_url}/api/chat",
-                json={
-                    "model": ollama_model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    "format": "json",
-                    "stream": False,
-                },
-                timeout=30,
-            )
+        raw      = await llm_chat(system_prompt, user_prompt, timeout=30)
+        policies = llm_parse_json(raw)
 
-            if resp.status_code != 200:
-                return []
+        if not isinstance(policies, list):
+            return []
 
-            response_data = resp.json()
-            response_text = response_data.get("message", {}).get("content", "").strip()
-
-            if not response_text:
-                return []
-
-            # Parse JSON response
-            policies = json.loads(response_text)
-
-            if not isinstance(policies, list):
-                return []
-
-            # Validate structure
-            return [
-                p for p in policies
-                if all(key in p for key in ["policy_area", "position", "priority", "confidence"])
-            ]
+        return [
+            p for p in policies
+            if all(key in p for key in ["policy_area", "position", "priority", "confidence"])
+        ]
 
     except json.JSONDecodeError:
         return []

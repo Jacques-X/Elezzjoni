@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 import httpx
 import pdfplumber
 from bs4 import BeautifulSoup
+from llm import chat as llm_chat, parse_json as llm_parse_json
 
 # ── Rate limiting ──────────────────────────────────────────────────────────────
 # Respectful delays to avoid overloading Parliament servers
@@ -311,48 +312,20 @@ Return JSON only.
 """
 
     try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{ollama_url}/api/chat",
-                json={
-                    "model": ollama_model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    "format": "json",
-                    "stream": False,
-                },
-                timeout=30,
-            )
+        raw    = await llm_chat(system_prompt, user_prompt, timeout=30)
+        parsed = llm_parse_json(raw)
 
-            if resp.status_code != 200:
-                return None
+        # Validate structure
+        if not all(key in parsed for key in ["vote_type", "bill_name", "votes", "confidence"]):
+            return None
 
-            response_data = resp.json()
-            response_text = response_data.get("message", {}).get("content", "").strip()
+        if not isinstance(parsed.get("votes"), dict):
+            parsed["votes"] = {}
 
-            if not response_text:
-                return None
-
-            # Parse JSON response
-            parsed = json.loads(response_text)
-
-            # Validate structure
-            if not all(key in parsed for key in ["vote_type", "bill_name", "votes", "confidence"]):
-                return None
-
-            # Ensure votes is a dict
-            if not isinstance(parsed.get("votes"), dict):
-                parsed["votes"] = {}
-
-            # Ensure confidence is a float
-            parsed["confidence"] = float(parsed.get("confidence", 0.0))
-
-            return parsed
+        parsed["confidence"] = float(parsed.get("confidence", 0.0))
+        return parsed
 
     except json.JSONDecodeError:
-        # LLM returned invalid JSON
         return None
     except Exception as e:
         print(f"    ⚠ LLM parsing failed: {e}")

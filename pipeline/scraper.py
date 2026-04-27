@@ -90,6 +90,9 @@ from scraper_parties import (
     scrape_party_intelligence,
 )
 
+# LLM router (Groq cloud or Ollama local)
+from llm import chat as llm_chat, parse_json as llm_parse_json, USE_GROQ
+
 # Phase 5: Parliamentary Questions & Committee Memberships
 from scraper_pqs import (
     scrape_parliamentary_questions,
@@ -195,11 +198,14 @@ SYSTEM_PROMPT = (
 
 async def ensure_ollama_running() -> subprocess.Popen | None:
     """
-    Checks if Ollama is already running. If not, starts it as a background
-    subprocess and waits up to 20 seconds for it to be ready.
-    Returns the Popen object if we started it (so main() can stop it later),
-    or None if it was already running.
+    Returns None immediately when using Groq (no local process needed).
+    Otherwise checks if Ollama is running and starts it if not.
+    Returns the Popen object if we started it (so main() can stop it later).
     """
+    if USE_GROQ:
+        print("  ☁️  using Groq API — skipping Ollama\n")
+        return None
+
     async with httpx.AsyncClient() as c:
         try:
             await c.get(f"{OLLAMA_URL}/api/tags", timeout=2)
@@ -537,26 +543,8 @@ async def enrich(name: str, text: str, source_label: str) -> dict:
     prompt = build_prompt(name, source_label, text[:6000])
 
     try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{OLLAMA_URL}/api/chat",
-                json={
-                    "model":  OLLAMA_MODEL,
-                    "format": "json",
-                    "stream": False,
-                    "options": {"temperature": 0.2},
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user",   "content": prompt},
-                    ],
-                },
-                timeout=120,   # local inference on 8b can take ~30-60s cold
-            )
-        raw = resp.json()["message"]["content"].strip()
-        # Strip any accidental markdown fences
-        raw = re.sub(r"^```(?:json)?\s*", "", raw)
-        raw = re.sub(r"\s*```$",           "", raw)
-        data = json.loads(raw)
+        raw  = await llm_chat(SYSTEM_PROMPT, prompt, timeout=120)
+        data = llm_parse_json(raw)
         data["personal_stances"]     = data.get("personal_stances", [])[:4]
         data["key_quotes"]           = data.get("key_quotes",       [])[:3]
         score = int(data.get("party_reliance_score", 50))
