@@ -1,0 +1,177 @@
+{
+  "cookies": [
+    {
+      "name": "_GRECAPTCHA",
+      "value": "09AKhCRwhYYi0FSRLLSvvm9pvBSNhb0l2ZGHhew8wouMtFUrdSqzOt_W1CyVD4tGbLqPRq__0ixe0BBWN8auzcmpw",
+      "domain": "www.google.com",
+      "path": "/recaptcha",
+      "expires": 1792942712.939591,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "datr",
+      "value": "rs3waewVh5ji_bOcHXbamsni",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1811949002.720251,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sb",
+      "value": "rs3waZXQU4dp7ZFqij1VAfDV",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1811950717.804132,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wd",
+      "value": "1280x720",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1777995520,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "c_user",
+      "value": "61571362471749",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1808926719.227771,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "oo",
+      "value": "v1%7C3%3A1777390717",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1811950718.222547,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "xs",
+      "value": "25%3ArbwytYMbEmxF7g%3A2%3A1777390714%3A-1%3A-1%3A%3AAcw-qidCyjWF_cT6uqAA3lfxrlQkKVWu-xteQK3XCw",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1808926719.227813,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "presence",
+      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1777390747838%2C%22v%22%3A1%7D",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.facebook.com",
+      "localStorage": [
+        {
+          "name": "armadillo_msgr_data_loss_stats",
+          "value": "{}"
+        },
+        {
+          "name": "falco_queue_log^$61571362471749^#61571362471749^#^#hmac_ttl.1777390717.AR3updGqZI8emfvxBiaBqvhKIqoG9ebOQ5y1XCSssNRP4GFG^$f36e0f06a9740e51f",
+          "value": "{\"items\":[{\"name\":\"ods_web_batch\",\"policy\":{\"r\":1,\"s\":1},\"time\":1777391464335.4001,\"extra\":\"{\\\"batch\\\":{\\\"3589\\\":{\\\"dgw_web_client\\\":{\\\"lightspeed.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null}}},\\\"6653\\\":{\\\"shared_worker_infra\\\":{\\\"worker_uptime.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":1},\\\"worker_uptime_elapsed_time_to_response_sec.0.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":null}}}}}\",\"tags\":[1,384],\"sessionId\":\":1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"ods_web_batch\",\"policy\":{\"r\":1,\"s\":1},\"time\":1777391470837.1,\"extra\":\"{\\\"batch\\\":{\\\"3589\\\":{\\\"dgw_web_client\\\":{\\\"realtime.WebStreamAckManager.ack_expected\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.reset\\\":{\\\"n\\\":2,\\\"d\\\":null},\\\"realtime.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":2,\\\"d\\\":null},\\\"realtime.GroupedWebStream.ack_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.WebStreamAckManager.ack_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.GroupedWebStream.data_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.GroupedWebStream.ack_sent\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.GroupedWebStream.data_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.GroupedWebStream.ack_sent\\\":{\\\"n\\\":1,\\\"d\\\":null}}},\\\"6653\\\":{\\\"shared_worker_infra\\\":{\\\"worker_uptime.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":1},\\\"worker_uptime_elapsed_time_to_response_sec.0.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":null}}}}}\",\"tags\":[1,384],\"sessionId\":\":1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"ods_web_batch\",\"policy\":{\"r\":1,\"s\":1},\"time\":1777391477342.5,\"extra\":\"{\\\"batch\\\":{\\\"3589\\\":{\\\"dgw_web_client\\\":{\\\"streamcontroller.WebStreamAckManager.ack_expected\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset\\\":{\\\"n\\\":4,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":4,\\\"d\\\":null},\\\"streamcontroller.GroupedWebStream.ack_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.WebStreamAckManager.ack_received\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.GroupedWebStream.data_received\\\":{\\\"n\\\":3,\\\"d\\\":null},\\\"streamcontroller.GroupedWebStream.ack_sent\\\":{\\\"n\\\":3,\\\"d\\\":null},\\\"realtime.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"rpsignaling.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null}}}}}\",\"tags\":[1,384],\"sessionId\":\":1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"ods_web_batch\",\"policy\":{\"r\":1,\"s\":1},\"time\":1777391484388.6,\"extra\":\"{\\\"batch\\\":{\\\"3589\\\":{\\\"dgw_web_client\\\":{\\\"lightspeed.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"lightspeed.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"streamcontroller.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null}}},\\\"6653\\\":{\\\"shared_worker_infra\\\":{\\\"worker_uptime.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":1},\\\"worker_uptime_elapsed_time_to_response_sec.0.MAWMainWebWorkerV2Bundle\\\":{\\\"n\\\":1,\\\"d\\\":null}}}}}\",\"tags\":[1,384],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"merlin_unified_protocol_event\",\"policy\":{\"r\":1},\"time\":1777391484619.9001,\"extra\":\"{\\\"element_visibility_absolute_ts\\\":{\\\"min_visible_px\\\":[{\\\"enter_ts\\\":\\\"1777390783209\\\",\\\"exit_ts\\\":\\\"1777391484606\\\"}]},\\\"entity_id\\\":\\\"AZavDgtaknctz684WcXjYV_qt06KqXVwHqrQz_gqueAfsYXMduLX4fyt31BUzsQXnxXt64y4N3lfGWazHYX5eCL4vhYBIcjF7RDm_7I8nVJ48xCGNgBF16tqDwFAnh8K_9vlrywIo64NvD-qLl0qJxOUKXRPpHT5SkVCy91wt6eIC1Dx5ySL_SsE76AcvR6QwrzKewWcT45qHjr6tWx8V0cM58SE9GYRDpAkx3IJohoKN6CfQLTqP8R8v62qLYJvbZjPd4PPWnVxRA0bdgSW__tiYlKkbXCc4Ignn2A1kQTUv5MYAVMj-sBsEQUMK9kc3roTv10iZAzkgz-wV9-KF931CnpKhR_zctJh9qAsyUMdRwPlCyDy5wpgcD-aqbo_DevhxMXgJU0EpA_d6mvqWfw_12HnCCYB9jKHF4rW25AAn414hwnu3tfKASiuwu2prUL3ArNfOEQuWcfDz2TKzm1ilYpStM4AvXAJyRSU3EcltXrVWeFXRQyWmPqDCD_91px6yAxP28yvua84_uYFWNIzkGqPxCJ-x3RMpQq0sufHN0AUJmNT8aqV2HBRJcjGB9ir1Va5IiZKb3nmreXuN77YM4YKiWmN7X7xcefYhq2wneijI05pe_XFv6i-q1S3yDjT_SPNLezXIZShIemGNgLLknVVc-XE0okZ9ImNlhM8MMXm37OSBXjDZeBp3oNiHy_Y1CVHI8iiuls_8Nvuez_67kBqVWY-FJVvoYKpae_IdaiFUZMtHjOUjVQerjO5P5URy-ybKZdsqwVBeLOn6zypnxE474uhgCgKa0QjLXEV5UqCKmaJkJkO_rdCagz0fEeavbN_fHjnnrbIlgZw0MEMPPHwzL8uvW1ihcHCEaURoBqP0OGJtOGLv0VFNYPjB5-KW_ay7dY5R8rnNSUWD-OkpvQEPwtq8XhsfQkORGsdhPQOa-LTiJWM6sMw_w1W8miX_9SSqti3c3wjlR168o3wNW0FqQIpu5-B7yoWpppCunzuOcbEbjbfSJk1g76Jng1dBlFQ79XadQmZl_4p2GCz3wmQ28x8ZYRYIbXJAZ-ufQ-tkj0IpgdDr-JjqgLEvG_7lwhyGBF0Sfct3BtTYrWshVotfeugAx6JXAy-wOTuN8Fe-ZfddsyYOO-KRHBoIXCIe2tMWBWRNoWrP3IsIOOsm7UGb0_GlZmiqr2CRfV3YXuUjH-yalUG3aPo7q2JUB61YKq-wYfH6gJQddkDP07CJVgqQ8CBH46U7HsCPNIsUW0qb-Ex77BU5gXYgdR15dvwcpRcIMdPgGwIhtrt7KvW4YO7ZJsR5aBubCsS8Khi9wGtRDTfVw_xnzw8IwAhaQFHw-1RNP12BOaYWcbTkdr1eM7ws9bChsim_naDVWZsuSiDKQFJR8GfHidE61dX0jFehLsTbHtaUTs_ta6PXdx1PqDDpinIF_8Lt8GEKh5sWI5cIoLel50XwdiPDr2jHfqAxY_YCVYA9jZkmP3Inn3L-mTObM20nPUt3eAd-NJcmqt54adAz5hHjhfbZUsZU_V0GXtM7TwfrTL783PsfP2Og6Nc4JryWxMwSefcKrEfJrn7G3zA3loWnNAs2NO1KkvZITnLdnktmk_r9FuuJi8M\\\",\\\"origin\\\":\\\"fb_newsfeed\\\",\\\"payload\\\":{\\\"placeholder_payload\\\":\\\"{\\\\\\\"csp\\\\\\\":0,\\\\\\\"feed_session_id\\\\\\\":\\\\\\\"1777390718958\\\\\\\",\\\\\\\"is_agg\\\\\\\":null,\\\\\\\"is_self\\\\\\\":null,\\\\\\\"is_seo\\\\\\\":false,\\\\\\\"logged_before\\\\\\\":true,\\\\\\\"nav_attribution_id_v2\\\\\\\":\\\\\\\"CometHomeRoot.react,comet.home,via_cold_start,1777390718792,118330,4748854339,,\\\\\\\",\\\\\\\"seo_container_id\\\\\\\":null,\\\\\\\"seo_type\\\\\\\":null,\\\\\\\"sid_raw\\\\\\\":\\\\\\\"b9e3pn:1a80ys:j6wtoh\\\\\\\",\\\\\\\"source\\\\\\\":0,\\\\\\\"story_height\\\\\\\":425,\\\\\\\"story_width\\\\\\\":590,\\\\\\\"vpvd_start_timestamp_ms\\\\\\\":1777390783209,\\\\\\\"vpvd_time_delta_ms\\\\\\\":701397,\\\\\\\"xt\\\\\\\":\\\\\\\"AZavDgtaknctz684WcXjYV_qt06KqXVwHqrQz_gqueAfsYXMduLX4fyt31BUzsQXnxXt64y4N3lfGWazHYX5eCL4vhYBIcjF7RDm_7I8nVJ48xCGNgBF16tqDwFAnh8K_9vlrywIo64NvD-qLl0qJxOUKXRPpHT5SkVCy91wt6eIC1Dx5ySL_SsE76AcvR6QwrzKewWcT45qHjr6tWx8V0cM58SE9GYRDpAkx3IJohoKN6CfQLTqP8R8v62qLYJvbZjPd4PPWnVxRA0bdgSW__tiYlKkbXCc4Ignn2A1kQTUv5MYAVMj-sBsEQUMK9kc3roTv10iZAzkgz-wV9-KF931CnpKhR_zctJh9qAsyUMdRwPlCyDy5wpgcD-aqbo_DevhxMXgJU0EpA_d6mvqWfw_12HnCCYB9jKHF4rW25AAn414hwnu3tfKASiuwu2prUL3ArNfOEQuWcfDz2TKzm1ilYpStM4AvXAJyRSU3EcltXrVWeFXRQyWmPqDCD_91px6yAxP28yvua84_uYFWNIzkGqPxCJ-x3RMpQq0sufHN0AUJmNT8aqV2HBRJcjGB9ir1Va5IiZKb3nmreXuN77YM4YKiWmN7X7xcefYhq2wneijI05pe_XFv6i-q1S3yDjT_SPNLezXIZShIemGNgLLknVVc-XE0okZ9ImNlhM8MMXm37OSBXjDZeBp3oNiHy_Y1CVHI8iiuls_8Nvuez_67kBqVWY-FJVvoYKpae_IdaiFUZMtHjOUjVQerjO5P5URy-ybKZdsqwVBeLOn6zypnxE474uhgCgKa0QjLXEV5UqCKmaJkJkO_rdCagz0fEeavbN_fHjnnrbIlgZw0MEMPPHwzL8uvW1ihcHCEaURoBqP0OGJtOGLv0VFNYPjB5-KW_ay7dY5R8rnNSUWD-OkpvQEPwtq8XhsfQkORGsdhPQOa-LTiJWM6sMw_w1W8miX_9SSqti3c3wjlR168o3wNW0FqQIpu5-B7yoWpppCunzuOcbEbjbfSJk1g76Jng1dBlFQ79XadQmZl_4p2GCz3wmQ28x8ZYRYIbXJAZ-ufQ-tkj0IpgdDr-JjqgLEvG_7lwhyGBF0Sfct3BtTYrWshVotfeugAx6JXAy-wOTuN8Fe-ZfddsyYOO-KRHBoIXCIe2tMWBWRNoWrP3IsIOOsm7UGb0_GlZmiqr2CRfV3YXuUjH-yalUG3aPo7q2JUB61YKq-wYfH6gJQddkDP07CJVgqQ8CBH46U7HsCPNIsUW0qb-Ex77BU5gXYgdR15dvwcpRcIMdPgGwIhtrt7KvW4YO7ZJsR5aBubCsS8Khi9wGtRDTfVw_xnzw8IwAhaQFHw-1RNP12BOaYWcbTkdr1eM7ws9bChsim_naDVWZsuSiDKQFJR8GfHidE61dX0jFehLsTbHtaUTs_ta6PXdx1PqDDpinIF_8Lt8GEKh5sWI5cIoLel50XwdiPDr2jHfqAxY_YCVYA9jZkmP3Inn3L-mTObM20nPUt3eAd-NJcmqt54adAz5hHjhfbZUsZU_V0GXtM7TwfrTL783PsfP2Og6Nc4JryWxMwSefcKrEfJrn7G3zA3loWnNAs2NO1KkvZITnLdnktmk_r9FuuJi8M\\\\\\\",\\\\\\\"dist_to_engagement\\\\\\\":-1,\\\\\\\"dist_to_fixed\\\\\\\":-1,\\\\\\\"dist_to_promo\\\\\\\":-1,\\\\\\\"dist_to_sponsored\\\\\\\":-1,\\\\\\\"dist_to_top\\\\\\\":1,\\\\\\\"min_gap_type\\\\\\\":14,\\\\\\\"story_category\\\\\\\":\\\\\\\"ENGAGEMENT\\\\\\\"}\\\"}}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"story_header_follow_profile\",\"policy\":{\"r\":1},\"time\":1777391484647,\"extra\":\"{\\\"event\\\":\\\"IMPRESSION\\\",\\\"post_id\\\":\\\"1505472407644279\\\",\\\"profile_id\\\":\\\"100045446028219\\\",\\\"story_id\\\":\\\"UzpfSUZTOjE6LTY5ODU4NDg0MDk2MDI4NTUwMzQ6ZUp3VE8zcm44dGExLy9aZE84S29LU00yNGUreFY4M24xckNLOG9sOWU3Zm15cGI5dW1Lemx2NmJ4eXQyNm56YmZGNUxHWkYzekdvTXBtQWhNd1l4aGpTb290Vk1ibGZFbVg0eHZWczQ5eUJJdXpTang1UUdKcWJVUExpQjBnd01ET0tPdkxrdUNRd01ES3BDMGt4dVVqQ3Bld0pNWm51dUxscTY4ZmJiUTRtcERLSXNPdEtNalh5WnhmSEZxU1h4bVhueGFhbXBLWXpTRE5naEE0K1hHRU9Na0JBRFE1SXBBd01BWURWS3B3PT0=\\\",\\\"surface\\\":\\\"IFR_POST_IN_NEWS_FEED\\\",\\\"tracking\\\":\\\"{\\\\\\\"qid\\\\\\\":\\\\\\\"-6985848409602855034\\\\\\\",\\\\\\\"mf_story_key\\\\\\\":\\\\\\\"-7085989573915473699\\\\\\\",\\\\\\\"top_level_post_id\\\\\\\":\\\\\\\"1505472407644279\\\\\\\",\\\\\\\"content_owner_id_new\\\\\\\":\\\\\\\"100045446028219\\\\\\\",\\\\\\\"page_id\\\\\\\":\\\\\\\"1412457855650967\\\\\\\",\\\\\\\"src\\\\\\\":10,\\\\\\\"originated_from_recommendation\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"photo_id\\\\\\\":\\\\\\\"1505472407644279\\\\\\\",\\\\\\\"story_location\\\\\\\":5,\\\\\\\"story_attachment_style\\\\\\\":\\\\\\\"photo\\\\\\\",\\\\\\\"view_time\\\\\\\":1777390718,\\\\\\\"filter\\\\\\\":\\\\\\\"h_nor\\\\\\\",\\\\\\\"sty\\\\\\\":247,\\\\\\\"story_set_type\\\\\\\":19,\\\\\\\"mf_objid\\\\\\\":\\\\\\\"1505472450977608\\\\\\\",\\\\\\\"ent_attachement_type\\\\\\\":\\\\\\\"MediaAttachment\\\\\\\",\\\\\\\"viewstate_id\\\\\\\":\\\\\\\"3513611922821109086\\\\\\\",\\\\\\\"pos\\\\\\\":1,\\\\\\\"page_insights\\\\\\\":{\\\\\\\"100045446028219\\\\\\\":{\\\\\\\"page_id\\\\\\\":\\\\\\\"100045446028219\\\\\\\",\\\\\\\"page_id_type\\\\\\\":\\\\\\\"page\\\\\\\",\\\\\\\"actor_id\\\\\\\":\\\\\\\"100045446028219\\\\\\\",\\\\\\\"dm\\\\\\\":{\\\\\\\"isShare\\\\\\\":0,\\\\\\\"originalPostOwnerID\\\\\\\":0,\\\\\\\"sharedMediaID\\\\\\\":0,\\\\\\\"sharedMediaOwnerID\\\\\\\":0},\\\\\\\"psn\\\\\\\":\\\\\\\"EntPhotoUploadBatchNodeBasedEdgeStory\\\\\\\",\\\\\\\"post_context\\\\\\\":{\\\\\\\"object_fbtype\\\\\\\":22,\\\\\\\"publish_time\\\\\\\":1777322309,\\\\\\\"story_name\\\\\\\":\\\\\\\"EntPhotoUploadBatchNodeBasedEdgeStory\\\\\\\",\\\\\\\"story_fbid\\\\\\\":[\\\\\\\"1505472407644279\\\\\\\"]},\\\\\\\"role\\\\\\\":1,\\\\\\\"sl\\\\\\\":5}},\\\\\\\"profile_relationship_type\\\\\\\":6,\\\\\\\"recommendation_item_source\\\\\\\":10028,\\\\\\\"recommendation_item_trigger_source\\\\\\\":\\\\\\\"100031693846767\\\\\\\",\\\\\\\"actrs\\\\\\\":\\\\\\\"100045446028219\\\\\\\",\\\\\\\"is_creator_profile_plus\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"join_key_from_recagg\\\\\\\":\\\\\\\"J118,61571362471749,-6985953756577530118,1505472450977608,IFR,S3\\\\\\\",\\\\\\\"tds_flgs\\\\\\\":3}\\\"}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"story_header_follow_profile\",\"policy\":{\"r\":1},\"time\":1777391484653.4001,\"extra\":\"{\\\"event\\\":\\\"IMPRESSION\\\",\\\"post_id\\\":\\\"1323695019813511\\\",\\\"profile_id\\\":\\\"100065190773215\\\",\\\"story_id\\\":\\\"UzpfSUZTOjE6LTY5ODU4NDg0MDk2MDI4NTUwMzQ6ZUp3VCsvZnd3WVNsSys3UDB0S1VFZXRiTlhuN2pKODNXVVRGeFBhMWIzbDAvSUN1MkpKZEgrZnhpbDI0MERhZjExSkdKRWFOd1JRc1lzWWd4cEFHVmJPYXllMktPRk1EQzB5M05LUEhsQVltcHRROHVIblNEQXdNNG82c3JvRUpEQXdNcWtMU1RHNVNNS2w3QWt4bUMrNnNhNXo2K254M1NpcURLSXVPTkdNalgyWnhmSEZxU1h4bVhueGFhbW9Lb3pRRGRzakE0eVhHRUNNa3hNQ1FaTXJBQUFEVlJFWmI=\\\",\\\"surface\\\":\\\"IFR_POST_IN_NEWS_FEED\\\",\\\"tracking\\\":\\\"{\\\\\\\"qid\\\\\\\":\\\\\\\"-6985848409602855034\\\\\\\",\\\\\\\"mf_story_key\\\\\\\":\\\\\\\"1520737423578634367\\\\\\\",\\\\\\\"top_level_post_id\\\\\\\":\\\\\\\"1323695019813511\\\\\\\",\\\\\\\"content_owner_id_new\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"page_id\\\\\\\":\\\\\\\"110824087752298\\\\\\\",\\\\\\\"src\\\\\\\":10,\\\\\\\"originated_from_recommendation\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"photo_attachments_list\\\\\\\":[\\\\\\\"1323694296480250\\\\\\\",\\\\\\\"1323694276480252\\\\\\\",\\\\\\\"1323694273146919\\\\\\\",\\\\\\\"1323694373146909\\\\\\\"],\\\\\\\"photo_id\\\\\\\":\\\\\\\"1323694296480250\\\\\\\",\\\\\\\"story_location\\\\\\\":5,\\\\\\\"story_attachment_style\\\\\\\":\\\\\\\"album\\\\\\\",\\\\\\\"view_time\\\\\\\":1777390718,\\\\\\\"filter\\\\\\\":\\\\\\\"h_nor\\\\\\\",\\\\\\\"sty\\\\\\\":46,\\\\\\\"story_set_type\\\\\\\":19,\\\\\\\"mf_objid\\\\\\\":\\\\\\\"1323695019813511\\\\\\\",\\\\\\\"ent_attachement_type\\\\\\\":\\\\\\\"PhotoSetAttachment\\\\\\\",\\\\\\\"viewstate_id\\\\\\\":\\\\\\\"3606151490543408912\\\\\\\",\\\\\\\"pos\\\\\\\":2,\\\\\\\"page_insights\\\\\\\":{\\\\\\\"100065190773215\\\\\\\":{\\\\\\\"page_id\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"page_id_type\\\\\\\":\\\\\\\"page\\\\\\\",\\\\\\\"actor_id\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"dm\\\\\\\":{\\\\\\\"isShare\\\\\\\":0,\\\\\\\"originalPostOwnerID\\\\\\\":0,\\\\\\\"sharedMediaID\\\\\\\":0,\\\\\\\"sharedMediaOwnerID\\\\\\\":0},\\\\\\\"psn\\\\\\\":\\\\\\\"EntStatusCreationStory\\\\\\\",\\\\\\\"post_context\\\\\\\":{\\\\\\\"object_fbtype\\\\\\\":266,\\\\\\\"publish_time\\\\\\\":1777217166,\\\\\\\"story_name\\\\\\\":\\\\\\\"EntStatusCreationStory\\\\\\\",\\\\\\\"story_fbid\\\\\\\":[\\\\\\\"1323695019813511\\\\\\\"]},\\\\\\\"role\\\\\\\":1,\\\\\\\"sl\\\\\\\":5,\\\\\\\"targets\\\\\\\":[{\\\\\\\"actor_id\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"page_id\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"post_id\\\\\\\":\\\\\\\"1323695019813511\\\\\\\",\\\\\\\"role\\\\\\\":1,\\\\\\\"share_id\\\\\\\":0}]}},\\\\\\\"profile_relationship_type\\\\\\\":6,\\\\\\\"recommendation_item_source\\\\\\\":8535,\\\\\\\"actrs\\\\\\\":\\\\\\\"100065190773215\\\\\\\",\\\\\\\"is_creator_profile_plus\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"join_key_from_recagg\\\\\\\":\\\\\\\"J118,61571362471749,-6985953756577530118,1323695019813511,IFR,S3\\\\\\\",\\\\\\\"tds_flgs\\\\\\\":3}\\\"}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"story_header_follow_profile\",\"policy\":{\"r\":1},\"time\":1777391484655.3,\"extra\":\"{\\\"event\\\":\\\"IMPRESSION\\\",\\\"post_id\\\":\\\"1498888691595453\\\",\\\"profile_id\\\":\\\"100044230099217\\\",\\\"story_id\\\":\\\"UzpfSUZTOjE6LTY5ODU4NDg0MDk2MDI4NTUwMzQ6ZUp3VFczRms3ZTFwYytadFA4K29LU00yNzBuZmd1Zm5WcktLOG9rdGFubHdadlYrWGJFSm56L080eFc3Y0xGdFBxK2xqTWc3WmpVR1U3Q1FHWU1ZUXhwVTBXb210eXZpVEwrWWZqMWEyUURTTHMzb01hV0JpU2sxRDI2Z05BTURnN2dqMDdIN0RBd01ES3BDMGt4dVVqQ3Bld0pNWnI4YlB0eWVjSERtTCtOVUJsRVdIV25HUnI3TTR2amkxSkw0ekx6NHROVFVGRVpwQnV5UWdjZExqQ0ZHU0lpQkljbVVnUUVBWHI5SmJBPT0=\\\",\\\"surface\\\":\\\"IFR_POST_IN_NEWS_FEED\\\",\\\"tracking\\\":\\\"{\\\\\\\"qid\\\\\\\":\\\\\\\"-6985848409602855034\\\\\\\",\\\\\\\"mf_story_key\\\\\\\":\\\\\\\"7473508561427214612\\\\\\\",\\\\\\\"top_level_post_id\\\\\\\":\\\\\\\"1498888691595453\\\\\\\",\\\\\\\"content_owner_id_new\\\\\\\":\\\\\\\"100044230099217\\\\\\\",\\\\\\\"page_id\\\\\\\":\\\\\\\"138819296501\\\\\\\",\\\\\\\"src\\\\\\\":10,\\\\\\\"originated_from_recommendation\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"photo_id\\\\\\\":\\\\\\\"1498888691595453\\\\\\\",\\\\\\\"story_location\\\\\\\":5,\\\\\\\"story_attachment_style\\\\\\\":\\\\\\\"photo\\\\\\\",\\\\\\\"view_time\\\\\\\":1777390718,\\\\\\\"filter\\\\\\\":\\\\\\\"h_nor\\\\\\\",\\\\\\\"sty\\\\\\\":247,\\\\\\\"story_set_type\\\\\\\":19,\\\\\\\"mf_objid\\\\\\\":\\\\\\\"1498888724928783\\\\\\\",\\\\\\\"ent_attachement_type\\\\\\\":\\\\\\\"MediaAttachment\\\\\\\",\\\\\\\"viewstate_id\\\\\\\":\\\\\\\"-1871864689642569790\\\\\\\",\\\\\\\"pos\\\\\\\":3,\\\\\\\"page_insights\\\\\\\":{\\\\\\\"100044230099217\\\\\\\":{\\\\\\\"page_id\\\\\\\":\\\\\\\"100044230099217\\\\\\\",\\\\\\\"page_id_type\\\\\\\":\\\\\\\"page\\\\\\\",\\\\\\\"actor_id\\\\\\\":\\\\\\\"100044230099217\\\\\\\",\\\\\\\"dm\\\\\\\":{\\\\\\\"isShare\\\\\\\":0,\\\\\\\"originalPostOwnerID\\\\\\\":0,\\\\\\\"sharedMediaID\\\\\\\":0,\\\\\\\"sharedMediaOwnerID\\\\\\\":0},\\\\\\\"psn\\\\\\\":\\\\\\\"EntPhotoUploadBatchNodeBasedEdgeStory\\\\\\\",\\\\\\\"post_context\\\\\\\":{\\\\\\\"object_fbtype\\\\\\\":22,\\\\\\\"publish_time\\\\\\\":1777220808,\\\\\\\"story_name\\\\\\\":\\\\\\\"EntPhotoUploadBatchNodeBasedEdgeStory\\\\\\\",\\\\\\\"story_fbid\\\\\\\":[\\\\\\\"1498888691595453\\\\\\\"]},\\\\\\\"role\\\\\\\":1,\\\\\\\"sl\\\\\\\":5},\\\\\\\"100077882506269\\\\\\\":{\\\\\\\"page_id\\\\\\\":\\\\\\\"100077882506269\\\\\\\",\\\\\\\"page_id_type\\\\\\\":\\\\\\\"page\\\\\\\",\\\\\\\"actor_id\\\\\\\":\\\\\\\"100044230099217\\\\\\\",\\\\\\\"dm\\\\\\\":{\\\\\\\"isShare\\\\\\\":0,\\\\\\\"originalPostOwnerID\\\\\\\":0,\\\\\\\"sharedMediaID\\\\\\\":0,\\\\\\\"sharedMediaOwnerID\\\\\\\":0},\\\\\\\"psn\\\\\\\":\\\\\\\"EntPhotoUploadBatchNodeBasedEdgeStory\\\\\\\",\\\\\\\"role\\\\\\\":16,\\\\\\\"sl\\\\\\\":5}},\\\\\\\"profile_relationship_type\\\\\\\":6,\\\\\\\"recommendation_item_source\\\\\\\":8539,\\\\\\\"actrs\\\\\\\":\\\\\\\"100044230099217\\\\\\\",\\\\\\\"is_creator_profile_plus\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"join_key_from_recagg\\\\\\\":\\\\\\\"J118,61571362471749,-6985953756577530118,1498888724928783,IFR,S3\\\\\\\",\\\\\\\"tds_flgs\\\\\\\":3}\\\"}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"}],\"ts\":1777391484655.4001}"
+        },
+        {
+          "name": "CacheStorageVersion",
+          "value": "3b"
+        },
+        {
+          "name": "mw_encrypted_backups_restore_upsell_first_impression_time_key",
+          "value": "1777390718903"
+        },
+        {
+          "name": "Session",
+          "value": "b9e3pn:1777391519618"
+        },
+        {
+          "name": "_oz_bandwidthEstimate",
+          "value": "10000000"
+        },
+        {
+          "name": "banzai:last_storage_flush",
+          "value": "1777390709438.4001"
+        },
+        {
+          "name": "screen_time_period_logging_facebook",
+          "value": "{\"actorId\":\"61571362471749\",\"currentIntervalLastTick\":1777391480,\"currentIntervalStart\":1777390718,\"initRemoteAgg\":{\"timestamp\":1776178141,\"today_s\":0},\"intervals\":[],\"lastCallbackAttempt\":1777391320,\"localStorageId\":\"97422461\",\"syncedL24HS\":-1,\"syncedTodayS\":602,\"lastSyncTimeStamp\":1777391320}"
+        },
+        {
+          "name": "last_headload_time",
+          "value": "1777390718964"
+        },
+        {
+          "name": "RSTData",
+          "value": "{}"
+        },
+        {
+          "name": "hb_timestamp",
+          "value": "1777389006252"
+        },
+        {
+          "name": "falco_queue_immediately^$61571362471749^#61571362471749^#^#hmac_ttl.1777390717.AR3updGqZI8emfvxBiaBqvhKIqoG9ebOQ5y1XCSssNRP4GFG^$f6dc85d529ba869df",
+          "value": "{\"items\":[{\"name\":\"web_time_spent_navigation\",\"policy\":{\"r\":1},\"time\":1777391484630.4001,\"extra\":\"{\\\"cause\\\":\\\"unload\\\",\\\"custom_data_json\\\":\\\"{\\\\\\\"source_pa\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"0\\\\\\\\\\\\\\\":{\\\\\\\\\\\\\\\"bookmark_id\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"4748854339\\\\\\\\\\\\\\\",\\\\\\\\\\\\\\\"bookmark_type_name\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"\\\\\\\\\\\\\\\",\\\\\\\\\\\\\\\"session\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"cjmnaf:1a80ys:j6wtoh\\\\\\\\\\\\\\\",\\\\\\\\\\\\\\\"subsession\\\\\\\\\\\\\\\":1,\\\\\\\\\\\\\\\"tap_point\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"via_cold_start\\\\\\\\\\\\\\\",\\\\\\\\\\\\\\\"timestamp\\\\\\\\\\\\\\\":1777390718792,\\\\\\\\\\\\\\\"trace_policy\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"comet.home\\\\\\\\\\\\\\\"}}\\\\\\\",\\\\\\\"source_pav2\\\\\\\":\\\\\\\"CometHomeRoot.react,comet.home,via_cold_start,1777390718792,118330,4748854339,,\\\\\\\",\\\\\\\"source_uri\\\\\\\":\\\\\\\"/\\\\\\\",\\\\\\\"source_imp_id\\\\\\\":\\\\\\\"1MB2EKPp5Mmof36d8\\\\\\\",\\\\\\\"source_visitation_id\\\\\\\":\\\\\\\"comet.home:j6wtoh:1:1777390718.785\\\\\\\"}\\\",\\\"sid_raw\\\":\\\"b9e3pn:1a80ys:j6wtoh\\\",\\\"source_path\\\":\\\"comet.home\\\"}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"},{\"name\":\"web_time_spent_bit_array\",\"policy\":{\"r\":1},\"time\":1777391484630.6,\"extra\":\"{\\\"sid_raw\\\":\\\"b9e3pn:1a80ys:j6wtoh\\\",\\\"start_endpoint\\\":\\\"comet.home\\\",\\\"start_event\\\":\\\"mousemove\\\",\\\"start_time\\\":1777391483,\\\"tos_array\\\":[1,0],\\\"tos_cum\\\":44,\\\"tos_id\\\":\\\"j6wtoh\\\",\\\"tos_len\\\":2,\\\"tos_seq\\\":3}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"}],\"ts\":1777391484630.6}"
+        },
+        {
+          "name": "_oz_bandwidthAndTTFBSamples",
+          "value": "{\"b\":[],\"t\":[]}"
+        },
+        {
+          "name": "signal_flush_timestamp",
+          "value": "1777390708913"
+        },
+        {
+          "name": "ps:61571362471749:9ce17afa-a422-4f1c-9e9c-bd0d665b2f41",
+          "value": "b6e98893-1908-433b-ae5b-f6f53ec87fca:1777390783373"
+        },
+        {
+          "name": "falco_queue_critical^$61571362471749^#61571362471749^#^#hmac_ttl.1777390717.AR3updGqZI8emfvxBiaBqvhKIqoG9ebOQ5y1XCSssNRP4GFG^$f75b49786c14adb18",
+          "value": "{\"items\":[{\"name\":\"ods_web_batch\",\"policy\":{\"r\":1,\"s\":1},\"time\":1777391484627.2,\"extra\":\"{\\\"batch\\\":{\\\"3589\\\":{\\\"dgw_web_client\\\":{\\\"realtime.DGWPinger.timeout_fired.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.timeout.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.reset\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"realtime.DGWPinger.reset.newtimeout\\\":{\\\"n\\\":1,\\\"d\\\":null}}},\\\"7173\\\":{\\\"entities.ff_js_web.merlin_unified_protocol_event.2220391788200892.1038.C3\\\":{\\\"event.logged\\\":{\\\"n\\\":1,\\\"d\\\":null},\\\"event.captured\\\":{\\\"n\\\":1,\\\"d\\\":null}}}}}\",\"tags\":[1,128],\"sessionId\":\"b9e3pn:1a80ys:j6wtoh\",\"deviceId\":\"fd.ARsQzg-s9pLSeARf-cNHS9DbrpSfr1NKU4GL4Uosel2EXUNxSdNg1jrU4QXitoa4Ir9H0rCQ8AN8LrY1CShySsiZ\",\"appVersion\":\"1038.303.932.0 (1038303932)\"}],\"ts\":1777391484627.3}"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.fbsbx.com",
+      "localStorage": [
+        {
+          "name": "_grecaptcha",
+          "value": "09AKhCRwhSTrf_LPAOQVXGoALFbp8HbARDJPN9yYOu-ou8AKwzo2C_gan7PNrkYIv2pbOgoP4yJzIeKmU8tYFb4KUQjqVZ1KeXQR9R8CIro71mzkCXPACp0zxoNQFApGdD"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.google.com",
+      "localStorage": [
+        {
+          "name": "rc::a",
+          "value": "bnowY3gwcnIyZ3Uz"
+        },
+        {
+          "name": "rc::f",
+          "value": "0aAJhJSMTZgsS4J9W-vwpqM28rnpjYZWn5Lmy1h8_tckqhZutGwwOaHL6Q0uF9czK0rSfKo6Y"
+        }
+      ]
+    }
+  ]
+}

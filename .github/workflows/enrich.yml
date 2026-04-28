@@ -37,6 +37,14 @@ jobs:
       - name: Install Playwright browsers
         run: playwright install chromium --with-deps
 
+      - name: Restore Facebook session
+        env:
+          FACEBOOK_STATE: ${{ secrets.FACEBOOK_STATE }}
+        run: |
+          if [ -n "$FACEBOOK_STATE" ]; then
+            echo "$FACEBOOK_STATE" | base64 -d > pipeline/state.json
+          fi
+
       - name: Run enrichment pipeline
         working-directory: pipeline
         env:

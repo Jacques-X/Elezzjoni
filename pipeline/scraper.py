@@ -1079,13 +1079,12 @@ async def main() -> None:
                 try:
                     # Upsert party into parties table
                     party_id = supabase.table("parties").upsert({
-                        "party_code": party_data["party_code"],
-                        "party_name": party_data["party_name"],
-                        "party_name_mt": party_data["party_name_mt"],
-                        "website_url": party_data["website"],
-                        "color_hex": party_data["color"],
+                        "abbreviation": party_data["party_code"],
+                        "name":         party_data["party_name"],
+                        "website_url":  party_data["website"],
+                        "color_hex":    party_data["color"],
                         "last_updated": party_data["fetched_at"],
-                    }, on_conflict="party_code").execute().data[0]["id"]
+                    }, on_conflict="abbreviation").execute().data[0]["id"]
 
                     # Save manifesto if available
                     if party_data["manifesto_url"] and party_data["manifesto_text"]:
