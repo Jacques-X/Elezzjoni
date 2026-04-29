@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card'
 import {
   MapPin, Globe, Quote, Sparkles, Clock, Share2,
   Building2, FileText, Scale, TrendingUp, MessageSquare,
-  Award, Users,
+  Award, Users, Info,
 } from 'lucide-react'
 import { s } from '@/lib/strings'
 
@@ -135,7 +135,7 @@ export default async function CandidatePage({ params }: PageProps) {
   const hasScore = typeof score === 'number' && score >= 0
 
   // PQ minister frequency
-  const pqList = pqs ?? []
+  const pqList   = pqs ?? []
   const ministerCounts: Record<string, number> = {}
   for (const q of pqList) {
     if (q.minister_addressed) {
@@ -145,6 +145,20 @@ export default async function CandidatePage({ params }: PageProps) {
   const topMinisters = Object.entries(ministerCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 4)
+
+  const hasRichData = (
+    votesList.length > 0 ||
+    pqList.length > 0 ||
+    (candidate.committee_memberships?.length ?? 0) > 0 ||
+    (candidate.personal_stances?.length ?? 0) > 0 ||
+    (candidate.priority_tags?.length ?? 0) > 0 ||
+    (candidate.key_quotes?.length ?? 0) > 0 ||
+    (businessInterests?.length ?? 0) > 0 ||
+    (disclosures?.length ?? 0) > 0 ||
+    (legalRecords?.length ?? 0) > 0 ||
+    (electoralHistory?.length ?? 0) > 0 ||
+    !!candidate.parliament_bio
+  )
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
@@ -683,6 +697,39 @@ export default async function CandidatePage({ params }: PageProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </Card>
+        )}
+
+        {/* Empty state */}
+        {!hasRichData && (
+          <Card className="p-6 border-border/60 shadow-sm">
+            <div className="flex gap-3 items-start text-muted-foreground">
+              <Info className="h-4 w-4 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground mb-1">
+                  {s.candidateProfile.emptyStateTitle}
+                </p>
+                <p className="text-sm leading-relaxed">
+                  {s.candidateProfile.emptyStateBody}
+                </p>
+                {candidate.social_links && (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {candidate.social_links.facebook && (
+                      <a href={candidate.social_links.facebook} target="_blank" rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline">
+                        Facebook →
+                      </a>
+                    )}
+                    {candidate.social_links.website && (
+                      <a href={candidate.social_links.website} target="_blank" rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline">
+                        {s.candidateProfile.socialWebsite} →
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </Card>
         )}

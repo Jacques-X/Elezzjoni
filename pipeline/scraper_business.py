@@ -287,44 +287,86 @@ async def check_parliament_roster(
     client: httpx.AsyncClient,
 ) -> Optional[dict]:
     """
-    Checks if candidate is a current Member of Parliament.
-    Returns { is_mp: bool, parliament_bio: str, current_role: str } or None.
+    Checks if candidate is a current Member of Parliament by:
+    1. Fetching the MP index and finding a matching href link
+    2. Fetching that individual MP profile page for bio/role
+
+    Returns { is_mp: bool, parliament_bio: str, current_position: str } or None.
     """
+    name_lower = candidate_name.lower()
+
+    # Normalise a name to the URL slug fragment parliament.mt uses
+    def _slug(s: str) -> str:
+        return re.sub(r"[^a-z0-9]", "", s.lower())
+
+    candidate_slug = _slug(candidate_name)
+
     try:
-        # Fetch parliament member roster
         resp = await client.get(
-            "https://parlament.mt/en/Members-of-Parliament",
+            "https://parlament.mt/en/14th-leg/members-of-parliament/",
             timeout=15,
             follow_redirects=True,
         )
-
         soup = BeautifulSoup(resp.text, "html.parser")
 
-        # Look for member cards/rows matching candidate name
-        for member in soup.select("div.member-card, li.member, tr.member-row"):
-            member_name_elem = member.select_one("h3, .name, .member-name, a")
+        # Find a link whose href or text matches the candidate
+        profile_url: Optional[str] = None
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            text = a.get_text(strip=True)
 
-            if not member_name_elem:
-                continue
+            href_slug = _slug(href)
+            text_lower = text.lower()
 
-            member_name = member_name_elem.get_text(strip=True)
-
-            # Fuzzy match on name (remove accents, compare)
-            if candidate_name.lower() in member_name.lower() or member_name.lower() in candidate_name.lower():
-                # Extract role and bio
-                role_elem = member.select_one(".role, .position, td:nth-child(2)")
-                bio_elem = member.select_one(".bio, .description, p")
-
-                role = role_elem.get_text(strip=True) if role_elem else "Member of Parliament"
-                bio = bio_elem.get_text(strip=True) if bio_elem else None
-
-                return {
-                    "is_mp": True,
-                    "parliament_bio": bio,
-                    "current_position": role,
-                }
+            name_parts = name_lower.split()
+            # Match if at least 2 name parts appear in the link text or URL slug
+            matched_parts = sum(1 for p in name_parts if p in text_lower or p in href_slug)
+            if matched_parts >= min(2, len(name_parts)):
+                if href.startswith("http"):
+                    profile_url = href
+                elif href.startswith("/"):
+                    profile_url = f"https://parlament.mt{href}"
+                break
 
     except Exception as e:
-        print(f"    ⚠ Parliament roster check failed for '{candidate_name}': {e}")
+        print(f"    ⚠ Parliament roster fetch failed: {e}")
+        return None
 
-    return None
+    if not profile_url:
+        return None
+
+    # Fetch the individual MP profile page
+    try:
+        resp2 = await client.get(profile_url, timeout=15, follow_redirects=True)
+        soup2 = BeautifulSoup(resp2.text, "html.parser")
+
+        # Role: look for prominent heading or role text near the name
+        role = "Member of Parliament"
+        for tag in soup2.find_all(["h2", "h3", "p", "span"]):
+            text = tag.get_text(strip=True)
+            if any(kw in text.lower() for kw in ["minister", "speaker", "leader", "whip", "shadow"]):
+                role = text[:120]
+                break
+
+        # Bio: longest paragraph-ish text block on the page
+        bio: Optional[str] = None
+        for p in soup2.find_all("p"):
+            text = p.get_text(" ", strip=True)
+            if len(text) > 80:
+                bio = text[:600]
+                break
+
+        return {
+            "is_mp": True,
+            "parliament_bio": bio,
+            "current_position": role,
+        }
+
+    except Exception as e:
+        print(f"    ⚠ Parliament profile fetch failed for {profile_url}: {e}")
+        # We still know they're an MP even if we couldn't get the bio
+        return {
+            "is_mp": True,
+            "parliament_bio": None,
+            "current_position": "Member of Parliament",
+        }

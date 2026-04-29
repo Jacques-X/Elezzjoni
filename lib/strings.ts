@@ -110,6 +110,8 @@ export const s = {
     mpLabel:         'Deputat tal-Parlament',
     districtLabel:   (n: number) => `Distrett ${n}`,
     lastUpdated:     (date: string) => `Aġġornat l-aħħar: ${date}`,
+    emptyStateTitle: 'Għad m\'hemmx data dettaljata għal dan il-kandidat.',
+    emptyStateBody:  'Qed inkomplu niġbru informazzjoni minn sorsi pubbliċi. Żur il-paġni soċjali tal-kandidat għal aktar dettalji.',
 
     // Social links
     socialFacebook:  'Facebook',
