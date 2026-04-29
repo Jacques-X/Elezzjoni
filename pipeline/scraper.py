@@ -403,7 +403,11 @@ async def scrape_facebook(url: str, browser: Browser) -> str:
         page = await ctx.new_page()
 
         await page.goto(mobile_url, wait_until="domcontentloaded", timeout=20_000)
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(2000)
+        # Scroll repeatedly to trigger lazy-loading of posts
+        for _ in range(6):
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await page.wait_for_timeout(1200)
 
         html = await page.content()
         await ctx.close()
@@ -478,55 +482,114 @@ async def scrape_website(url: str, client: httpx.AsyncClient) -> tuple[str, str 
 
 # ── Stage 2c: Local news search fallback ─────────────────────────────────────
 
-async def scrape_news(name: str, client: httpx.AsyncClient) -> tuple[str, str | None]:
+async def _collect_article_urls(name: str, client: httpx.AsyncClient) -> list[str]:
     """
-    Uses a Google dork targeting top Maltese journalism sites to find articles
-    about the candidate, then extracts text + og:image via trafilatura.
-    Returns (text, og_image_url).
+    Collects article URLs mentioning the candidate from multiple sources.
+    Tries direct site searches first, DDG as fallback.
     """
-    site_filter = " OR ".join(f"site:{s}" for s in MALTESE_NEWS_SITES)
-    query = f'"{name}" ({site_filter})'
+    urls: list[str] = []
+    seen: set[str] = set()
 
+    def _add(href: str) -> None:
+        if href not in seen and any(site in href for site in MALTESE_NEWS_SITES):
+            seen.add(href)
+            urls.append(href)
+
+    # 1. Times of Malta direct search
     try:
-        resp = await client.post(
-            DDG_SEARCH_URL,
-            data={"q": query, "b": "", "kl": ""},
-            headers={"User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded"},
-            timeout=15,
+        r = await client.get(
+            "https://timesofmalta.com/search",
+            params={"query": name},
+            headers={"User-Agent": UA},
+            timeout=12,
             follow_redirects=True,
         )
-        soup = BeautifulSoup(resp.text, "html.parser")
-
-        # Collect URLs that belong to one of our target news sites
-        result_urls: list[str] = []
-        for a in soup.select("a.result__a"):
-            href = a.get("href", "")
-            if href.startswith("http") and any(site in href for site in MALTESE_NEWS_SITES):
-                result_urls.append(href)
-            if len(result_urls) >= 3:
+        soup = BeautifulSoup(r.text, "html.parser")
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if "/articles/" in href:
+                if href.startswith("/"):
+                    href = f"https://timesofmalta.com{href}"
+                _add(href)
+            if len(urls) >= 4:
                 break
+    except Exception:
+        pass
 
-        for article_url in result_urls:
-            try:
-                article_resp = await client.get(article_url, timeout=12, follow_redirects=True)
-                text = await asyncio.to_thread(
-                    trafilatura.extract,
-                    article_resp.text,
-                    include_comments=False,
-                    include_tables=False,
-                    no_fallback=False,
-                )
-                if text and len(text.split()) >= MIN_WORDS:
-                    print(f"   📰 {article_url}")
+    # 2. MaltaToday direct search
+    if len(urls) < 3:
+        try:
+            r = await client.get(
+                "https://www.maltatoday.com.mt/search",
+                params={"q": name},
+                headers={"User-Agent": UA},
+                timeout=12,
+                follow_redirects=True,
+            )
+            soup = BeautifulSoup(r.text, "html.parser")
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
+                if href.startswith("http") and "maltatoday.com.mt" in href:
+                    _add(href)
+                if len(urls) >= 6:
+                    break
+        except Exception:
+            pass
+
+    # 3. DuckDuckGo fallback
+    if len(urls) < 2:
+        try:
+            site_filter = " OR ".join(f"site:{s}" for s in MALTESE_NEWS_SITES)
+            r = await client.post(
+                DDG_SEARCH_URL,
+                data={"q": f'"{name}" ({site_filter})', "b": "", "kl": ""},
+                headers={"User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded"},
+                timeout=15,
+                follow_redirects=True,
+            )
+            for a in BeautifulSoup(r.text, "html.parser").select("a.result__a"):
+                href = a.get("href", "")
+                if href.startswith("http"):
+                    _add(href)
+                if len(urls) >= 6:
+                    break
+        except Exception:
+            pass
+
+    return urls[:6]
+
+
+async def scrape_news(name: str, client: httpx.AsyncClient) -> tuple[str, str | None]:
+    """
+    Searches multiple Maltese news sources and aggregates text from up to 4
+    articles. Returns (combined_text, first_og_image_found).
+    """
+    result_urls = await _collect_article_urls(name, client)
+
+    combined_parts: list[str] = []
+    photo: str | None = None
+
+    for article_url in result_urls:
+        try:
+            article_resp = await client.get(article_url, timeout=12, follow_redirects=True)
+            text = await asyncio.to_thread(
+                trafilatura.extract,
+                article_resp.text,
+                include_comments=False,
+                include_tables=False,
+                no_fallback=False,
+            )
+            if text and len(text.split()) >= 40:
+                print(f"   📰 {article_url}")
+                combined_parts.append(text[:2500])
+                if not photo:
                     photo = _og_image(article_resp.text)
-                    return text[:5000], photo
-            except Exception:
-                continue
+            if len(combined_parts) >= 4:
+                break
+        except Exception:
+            continue
 
-    except Exception as e:
-        print(f"    ⚠ News search error for '{name}': {e}")
-
-    return "", None
+    return "\n\n---\n\n".join(combined_parts), photo
 
 
 # ── Stage 3: LLM enrichment via Ollama ───────────────────────────────────────
@@ -660,6 +723,58 @@ async def fetch_wikipedia_photo(name: str, client: httpx.AsyncClient) -> str | N
         except Exception:
             pass
     return None
+
+
+# ── Text: Wikipedia intro ────────────────────────────────────────────────────
+
+async def fetch_wikipedia_text(name: str, client: httpx.AsyncClient) -> str:
+    """
+    Returns the introductory extract from the candidate's Wikipedia article.
+    Tries the exact name, then searches for '[name] Malta politician'.
+    """
+    wiki_name = WIKIPEDIA_OVERRIDES.get(name, name)
+    extract_params = {
+        "action": "query", "prop": "extracts",
+        "exintro": True, "explaintext": True,
+        "format": "json", "redirects": 1,
+    }
+    try:
+        # Direct title lookup
+        resp = await client.get(
+            WIKIPEDIA_API,
+            params={**extract_params, "titles": wiki_name},
+            timeout=10,
+        )
+        for page in resp.json().get("query", {}).get("pages", {}).values():
+            text = page.get("extract", "")
+            if page.get("pageid", -1) != -1 and len(text.split()) >= 30:
+                return text[:4000]
+
+        # Search fallback
+        sresp = await client.get(
+            WIKIPEDIA_API,
+            params={"action": "query", "list": "search",
+                    "srsearch": f"{wiki_name} Malta politician",
+                    "format": "json", "srlimit": 3},
+            timeout=10,
+        )
+        results = sresp.json().get("query", {}).get("search", [])
+        if not results:
+            return ""
+        title = results[0]["title"]
+        resp2 = await client.get(
+            WIKIPEDIA_API,
+            params={**extract_params, "titles": title},
+            timeout=10,
+        )
+        for page in resp2.json().get("query", {}).get("pages", {}).values():
+            text = page.get("extract", "")
+            if len(text.split()) >= 30:
+                return text[:4000]
+
+    except Exception as e:
+        print(f"    ⚠ Wikipedia text error for '{name}': {e}")
+    return ""
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -831,18 +946,25 @@ async def main() -> None:
                         if web_photo and not scraped_photo:
                             scraped_photo = web_photo
 
-                    # 2c: Local news search fallback
-                    if len(all_text.split()) < MIN_WORDS:
-                        print(f"   🔎 searching local news…")
-                        news_text, news_photo = await scrape_news(name, http)
-                        if news_text:
-                            all_text    = (all_text + "\n\n" + news_text).strip()
-                            source_used = source_used or "local news"
-                            print(f"   ✓  {len(news_text.split())} words from news")
-                        else:
-                            print(f"   –  no news found")
-                        if news_photo and not scraped_photo:
-                            scraped_photo = news_photo
+                    # 2c: Wikipedia intro text
+                    if len(all_text.split()) < MIN_WORDS * 3:
+                        wiki_text = await fetch_wikipedia_text(name, http)
+                        if wiki_text:
+                            all_text    = (all_text + "\n\n" + wiki_text).strip()
+                            source_used = source_used or "Wikipedia"
+                            print(f"   ✓  {len(wiki_text.split())} words from Wikipedia")
+
+                    # 2d: Local news search (always run to add more content)
+                    print(f"   🔎 searching local news…")
+                    news_text, news_photo = await scrape_news(name, http)
+                    if news_text:
+                        all_text    = (all_text + "\n\n" + news_text).strip()
+                        source_used = source_used or "local news"
+                        print(f"   ✓  {len(news_text.split())} words from news")
+                    else:
+                        print(f"   –  no news found")
+                    if news_photo and not scraped_photo:
+                        scraped_photo = news_photo
 
                     # ── Stage 2 (photo): resolve in priority order ────────
                     # 1. Facebook Graph API  2. og:image from scraped pages
